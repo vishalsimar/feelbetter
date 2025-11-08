@@ -177,7 +177,19 @@
                       <span class="font-semibold px-2 py-1 rounded-full text-sm mr-2 text-slate-800" [class]="getEmotionColor(entry.emotion)">{{ entry.emotion }}</span>
                       <span class="text-sm text-slate-500 dark:text-slate-400">{{ entry.date | date:'medium' }}</span>
                     </div>
-                    <p class="text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{{ entry.notes }}</p>
+                    @if (entry.notes.length > journalPreviewCharLimit) {
+                      <div>
+                        @if (expandedJournalEntries().has(entry.id)) {
+                          <p class="text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{{ entry.notes }}</p>
+                          <button (click)="toggleJournalEntry(entry.id)" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline mt-2">Read less</button>
+                        } @else {
+                          <p class="text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{{ entry.notes.substring(0, journalPreviewCharLimit) }}...</p>
+                          <button (click)="toggleJournalEntry(entry.id)" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline mt-2">Read more</button>
+                        }
+                      </div>
+                    } @else {
+                      <p class="text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{{ entry.notes }}</p>
+                    }
                 </div>
                 <button (click)="deleteJournalEntry(entry.id)" class="text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-500 transition-colors p-1">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -253,7 +265,7 @@
                   @if(upiCopied()) { <span>Copied!</span> } @else { <span>Copy</span> }
                 </button>
             </div>
-             <a [href]="'upi://pay?pa=' + upiId" target="_blank" class="mt-4 bg-indigo-500 text-white font-bold py-3 px-4 rounded-md hover:bg-indigo-600 transition-colors w-full block text-center">
+             <a [href]="upiLink()" target="_blank" class="mt-4 bg-indigo-500 text-white font-bold py-3 px-4 rounded-md hover:bg-indigo-600 transition-colors w-full block text-center">
                 Donate via UPI
               </a>
           </div>

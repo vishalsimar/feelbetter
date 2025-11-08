@@ -45,6 +45,11 @@ export class AppComponent {
   // Donation state
   readonly upiId = 'vishalsimar@upi';
   upiCopied = signal(false);
+  readonly upiLink = computed(() => `https://www.upi.me/pay?pa=${this.upiId}&tn=Making%20the%20world%20a%20better%20place.`);
+
+  // Journal Entry Expansion
+  readonly journalPreviewCharLimit = 200;
+  expandedJournalEntries = signal(new Set<string>());
 
   // Computed value for strategies of the selected emotion
   selectedEmotionStrategies = computed(() => {
@@ -139,6 +144,18 @@ export class AppComponent {
     if (confirm('Are you sure you want to delete this entry?')) {
         this.journalService.deleteEntry(id);
     }
+  }
+
+  toggleJournalEntry(id: string): void {
+    this.expandedJournalEntries.update(set => {
+      const newSet = new Set(set);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
   }
 
   getEmotionColor(emotionName: string): string {
