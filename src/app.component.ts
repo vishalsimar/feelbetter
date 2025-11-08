@@ -40,12 +40,11 @@ export class AppComponent {
 
   // Theme management
   private readonly themeKey = 'feel-better-theme';
-  theme = signal<'light' | 'dark'>('light');
+  theme = signal<'light' | 'dark'>('dark');
 
   // Donation state
   readonly upiId = 'vishalsimar@upi';
   upiCopied = signal(false);
-  readonly upiLink = computed(() => `https://www.upi.me/pay?pa=${this.upiId}&tn=Making%20the%20world%20a%20better%20place.`);
 
   // Journal Entry Expansion
   readonly journalPreviewCharLimit = 200;
@@ -61,6 +60,7 @@ export class AppComponent {
 
   // Strategy editing state
   editingStrategy = signal<{id: string, text: string} | null>(null);
+  checkedStrategyIds = signal(new Set<string>());
 
   // Drag and drop state
   private draggedStrategy: { strategy: Strategy, from: { scenario: ScenarioKey, category: CategoryKey, index: number } } | null = null;
@@ -79,15 +79,17 @@ export class AppComponent {
     const daysInMonth = endDate.getDate();
     const firstDayOfWeek = startDate.getDay();
 
-    const calendarDays: {date: number | null, color: string | null}[] = [];
+    const calendarDays: {date: number | null, colors: string[]}[] = [];
     for (let i = 0; i < firstDayOfWeek; i++) {
-        calendarDays.push({ date: null, color: null });
+        calendarDays.push({ date: null, colors: [] });
     }
 
     for (let i = 1; i <= daysInMonth; i++) {
         const date = new Date(today.getFullYear(), today.getMonth(), i);
-        const entry = entries.find(e => new Date(e.date).toDateString() === date.toDateString());
-        calendarDays.push({ date: i, color: entry ? emotionMap.get(entry.emotion) || null : null });
+        const dateString = date.toDateString();
+        const entriesForDay = entries.filter(e => new Date(e.date).toDateString() === dateString);
+        const colorsForDay = entriesForDay.map(e => emotionMap.get(e.emotion) || 'bg-gray-200');
+        calendarDays.push({ date: i, colors: colorsForDay.reverse() });
     }
 
     return {
@@ -124,6 +126,7 @@ export class AppComponent {
     this.selectedEmotion.set(emotion);
     this.selectedScenario.set('self');
     this.setView('detail');
+    this.checkedStrategyIds.set(new Set<string>()); // Reset checkboxes on new emotion
   }
 
   selectScenario(scenario: ScenarioKey): void {
@@ -141,9 +144,7 @@ export class AppComponent {
   }
 
   deleteJournalEntry(id: string): void {
-    if (confirm('Are you sure you want to delete this entry?')) {
-        this.journalService.deleteEntry(id);
-    }
+    this.journalService.deleteEntry(id);
   }
 
   toggleJournalEntry(id: string): void {
@@ -203,6 +204,22 @@ export class AppComponent {
   }
 
   // --- Strategy Management ---
+  toggleStrategyChecked(id: string): void {
+    this.checkedStrategyIds.update(set => {
+        const newSet = new Set(set);
+        if (newSet.has(id)) {
+            newSet.delete(id);
+        } else {
+            newSet.add(id);
+        }
+        return newSet;
+    });
+  }
+
+  resetStrategyChecks(): void {
+    this.checkedStrategyIds.set(new Set<string>());
+  }
+
   addStrategy(scenario: ScenarioKey, category: CategoryKey): void {
     const emotionName = this.selectedEmotion()?.name;
     if (emotionName) {
@@ -219,6 +236,11 @@ export class AppComponent {
     const emotionName = this.selectedEmotion()?.name;
     if (emotionName && confirm('Delete this strategy?')) {
       this.strategyService.deleteStrategy(emotionName, scenario, category, strategyId);
+      this.checkedStrategyIds.update(set => {
+          const newSet = new Set(set);
+          newSet.delete(strategyId);
+          return newSet;
+      });
     }
   }
 

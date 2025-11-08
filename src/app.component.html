@@ -47,19 +47,30 @@
               <p class="text-slate-500 dark:text-slate-400 mt-2">{{ emotion.description }}</p>
             </div>
             
-            <div class="flex border-b border-slate-200 dark:border-slate-700 mb-6 justify-center">
-              @for (scenarioKey of ['self', 'friend', 'caused']; track scenarioKey) {
-                <button (click)="selectScenario(scenarioKey)" 
-                        class="px-4 py-3 font-semibold transition-colors text-sm sm:text-base"
-                        [class]="selectedScenario() === scenarioKey ? 'border-b-2 border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100'">
-                  {{ emotion.scenarios[scenarioKey].title }}
-                </button>
+            <div class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900 pb-4 transition-colors duration-300">
+              <div class="flex border-b border-slate-200 dark:border-slate-700 justify-center">
+                @for (scenarioKey of ['self', 'friend', 'caused']; track scenarioKey) {
+                  <button (click)="selectScenario(scenarioKey)" 
+                          class="px-4 py-3 font-semibold transition-colors text-sm sm:text-base"
+                          [class]="selectedScenario() === scenarioKey ? 'border-b-2 border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100'">
+                    {{ emotion.scenarios[scenarioKey].title }}
+                  </button>
+                }
+              </div>
+
+              @if (selectedEmotionStrategies()?.[selectedScenario()]) {
+                <div class="flex justify-end pt-4 px-2">
+                  <button (click)="resetStrategyChecks()" class="text-sm text-indigo-600 dark:text-indigo-400 font-semibold hover:underline p-1 flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>Reset Checks</span>
+                  </button>
+                </div>
               }
             </div>
 
             @if (selectedEmotionStrategies(); as strategies) {
               @if (strategies[selectedScenario()]; as scenario) {
-                <div class="space-y-8">
+                <div class="space-y-8 pt-4">
                   @for (category of [['immediate', 'Immediate Actions'], ['shortTerm', 'Short-Term Strategies'], ['longTerm', 'Long-Term Practices']]; track category[0]) {
                     <div (dragover)="onDragOver($event)" (drop)="onDrop(selectedScenario(), category[0], scenario[category[0]].length)">
                       <h3 class="font-bold text-lg mb-3 text-slate-700 dark:text-slate-200">{{ category[1] }}</h3>
@@ -71,7 +82,6 @@
                               (dragover)="onDragOver($event)"
                               (drop)="onDrop(selectedScenario(), category[0], i)">
                             <svg class="w-6 h-6 mr-2 text-slate-400 flex-shrink-0 cursor-grab" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                            <input type="checkbox" class="h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:bg-slate-700 dark:border-slate-600 mr-3">
                             
                             @if (editingStrategy()?.id === strategy.id) {
                               <input type="text" [(ngModel)]="editingStrategy().text" (keydown.enter)="saveStrategy(selectedScenario(), category[0])" (keydown.escape)="cancelEditing()" class="flex-grow bg-transparent border-b border-indigo-500 focus:outline-none dark:text-slate-100">
@@ -79,7 +89,8 @@
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                               </button>
                             } @else {
-                              <span class="flex-grow text-slate-700 dark:text-slate-300">{{ strategy.text }}</span>
+                              <input type="checkbox" [id]="strategy.id" (change)="toggleStrategyChecked(strategy.id)" [checked]="checkedStrategyIds().has(strategy.id)" class="h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:bg-slate-700 dark:border-slate-600 mr-3 flex-shrink-0">
+                              <label [for]="strategy.id" class="flex-grow text-slate-700 dark:text-slate-300 cursor-pointer">{{ strategy.text }}</label>
                               <div class="opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button (click)="startEditing(strategy)" class="ml-2 text-slate-500 hover:text-indigo-600 p-1">
                                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
@@ -213,9 +224,22 @@
             </div>
             <div class="grid grid-cols-7 gap-1">
                 @for(day of trendsData().days; track $index) {
-                    <div class="w-full h-12 sm:h-16 flex items-center justify-center rounded" [class]="day.color || 'bg-slate-100 dark:bg-slate-700'">
+                    <div class="relative w-full h-12 sm:h-16 flex items-center justify-center rounded overflow-hidden"
+                         [class]="day.colors.length === 0 ? 'bg-slate-100 dark:bg-slate-700' : ''">
+
+                        @if (day.colors.length > 0) {
+                            <div class="absolute inset-0 flex w-full h-full">
+                                @for (color of day.colors; track $index) {
+                                    <div class="h-full" style="flex: 1 1 0%;" [class]="color"></div>
+                                }
+                            </div>
+                        }
+
                         @if(day.date) {
-                            <span class="text-xs sm:text-sm" [class]="day.color ? 'font-bold text-white' : 'text-slate-400 dark:text-slate-500'">{{ day.date }}</span>
+                            <span class="relative text-xs sm:text-sm"
+                                  [class]="day.colors.length > 0 ? 'font-bold text-white mix-blend-difference' : 'text-slate-400 dark:text-slate-500'">
+                                {{ day.date }}
+                            </span>
                         }
                     </div>
                 }
@@ -265,9 +289,6 @@
                   @if(upiCopied()) { <span>Copied!</span> } @else { <span>Copy</span> }
                 </button>
             </div>
-             <a [href]="upiLink()" target="_blank" class="mt-4 bg-indigo-500 text-white font-bold py-3 px-4 rounded-md hover:bg-indigo-600 transition-colors w-full block text-center">
-                Donate via UPI
-              </a>
           </div>
         </div>
       }
@@ -325,7 +346,7 @@
         <span class="text-xs font-medium">Home</span>
       </button>
       <button (click)="setView('journal')" class="flex flex-col items-center justify-center p-3 w-full transition-colors" [class]="currentView() === 'journal' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
         <span class="text-xs font-medium">Journal</span>
       </button>
       <button (click)="setView('trends')" class="flex flex-col items-center justify-center p-3 w-full transition-colors" [class]="currentView() === 'trends' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'">
@@ -333,7 +354,7 @@
         <span class="text-xs font-medium">Trends</span>
       </button>
       <button (click)="setView('settings')" class="flex flex-col items-center justify-center p-3 w-full transition-colors" [class]="currentView() === 'settings' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0 3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
         <span class="text-xs font-medium">Settings</span>
       </button>
     </nav>

@@ -61,6 +61,15 @@ export class StrategyService {
         }
     }
 
+    resetToDefaults(): void {
+        try {
+            localStorage.removeItem(this.storageKey);
+        } catch (e) {
+            console.error('Error removing strategies from localStorage', e);
+        }
+        this.strategies.set(this.initializeDefaultStrategies());
+    }
+
     private updateStrategyList(emotion: string, scenario: string, category: string, updateFn: (list: Strategy[]) => Strategy[]) {
         this.strategies.update(allStrategies => {
             const newStrategies = { ...allStrategies };
