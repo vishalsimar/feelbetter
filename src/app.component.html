@@ -24,14 +24,6 @@
                 </button>
               }
             </div>
-             <!-- Guided Breathing Button -->
-            <div class="text-center p-6 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2 text-slate-700 dark:text-slate-200">Need a moment of calm?</h3>
-                <p class="text-slate-600 dark:text-slate-300 mb-4">Center yourself with a simple breathing exercise.</p>
-                <button (click)="setView('breathing')" class="bg-sky-500 text-white font-bold py-3 px-8 rounded-full hover:bg-sky-600 transition-colors transform hover:scale-105">
-                  Take a Mindful Breath
-                </button>
-            </div>
             <div class="text-center p-6 bg-slate-100 dark:bg-slate-800 rounded-lg">
               <h3 class="text-xl font-semibold mb-2 text-slate-700 dark:text-slate-200">Not sure how you feel?</h3>
               <p class="text-slate-600 dark:text-slate-300 mb-4">That's perfectly okay. Let's try to figure it out together.</p>
@@ -276,9 +268,8 @@
           </button>
           <div class="text-center">
             <div class="relative w-48 h-48 sm:w-64 sm:h-64 flex items-center justify-center">
-              <div class="absolute inset-0 bg-sky-200 dark:bg-sky-800 rounded-full transition-transform duration-[4000ms] ease-in-out" 
-                   [class.scale-150]="breathingState() === 'in'"
-                   [class.scale-100]="breathingState() === 'out'"></div>
+              <div class="absolute inset-0 bg-sky-200 dark:bg-sky-800 rounded-full transition-transform duration-[4000ms] ease-in-out"
+                   [class]="(breathingState() === 'in' || breathingState() === 'hold1') ? 'scale-150' : 'scale-100'"></div>
               <div class="relative z-10">
                 <p class="text-2xl sm:text-3xl font-bold text-sky-800 dark:text-sky-100">{{ breathingInstruction() }}</p>
                 @if (breathingState() !== 'idle') {
@@ -302,6 +293,17 @@
       }
     }
   </main>
+
+  <!-- FLOATING ACTION BUTTON -->
+  @if (currentView() !== 'breathing') {
+    <button (click)="setView('breathing')" 
+            title="Guided Breathing"
+            class="fixed bottom-20 right-5 z-40 bg-sky-500 text-white rounded-full p-4 shadow-lg hover:bg-sky-600 transition-colors transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900">
+      <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h2.5l2-4 3 8 2.5-5L17.5 12H20" />
+      </svg>
+    </button>
+  }
 
   <!-- BOTTOM NAVIGATION -->
   @if (currentView() !== 'breathing') {

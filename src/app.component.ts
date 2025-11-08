@@ -173,9 +173,9 @@ export class AppComponent {
   suggestedEmotions = computed(() => {
     const answers = this.finderAnswers();
     if (answers.energy === 'high' && answers.focus === 'outward') return ['Joy', 'Anger', 'Surprise'];
-    if (answers.energy === 'high' && answers.focus === 'inward') return ['Love', 'Fear'];
-    if (answers.energy === 'low' && answers.focus === 'outward') return ['Calm', 'Sadness'];
-    if (answers.energy === 'low' && answers.focus === 'inward') return ['Shame', 'Sadness'];
+    if (answers.energy === 'high' && answers.focus === 'inward') return ['Anticipation', 'Fear'];
+    if (answers.energy === 'low' && answers.focus === 'outward') return ['Trust', 'Sadness'];
+    if (answers.energy === 'low' && answers.focus === 'inward') return ['Disgust', 'Sadness'];
     return [];
   });
   
