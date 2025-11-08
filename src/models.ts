@@ -1,17 +1,16 @@
-
 export interface Emotion {
   name: string;
   description: string;
   color: string; // Tailwind color class e.g., 'bg-blue-500'
   icon: string; // SVG path data
   scenarios: {
-    self: StrategyCategory;
-    friend: StrategyCategory;
-    caused: StrategyCategory;
+    self: StrategyDefCategory;
+    friend: StrategyDefCategory;
+    caused: StrategyDefCategory;
   };
 }
 
-export interface StrategyCategory {
+export interface StrategyDefCategory {
   title: string;
   immediate: string[];
   shortTerm: string[];
@@ -23,4 +22,24 @@ export interface JournalEntry {
   emotion: string;
   notes: string;
   date: string; // ISO string format
+}
+
+// Models for user-customizable strategies
+export interface Strategy {
+  id: string;
+  text: string;
+}
+
+export interface StrategyCategory {
+  immediate: Strategy[];
+  shortTerm: Strategy[];
+  longTerm: Strategy[];
+}
+
+export interface UserEmotionStrategies {
+    [emotionName: string]: {
+        self: StrategyCategory;
+        friend: StrategyCategory;
+        caused: StrategyCategory;
+    }
 }
