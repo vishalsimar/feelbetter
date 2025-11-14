@@ -65,6 +65,11 @@ export class AppComponent {
   // Drag and drop state
   private draggedStrategy: { strategy: Strategy, from: { scenario: ScenarioKey, category: CategoryKey, index: number } } | null = null;
 
+  // Breathing exercise state
+  breathingState = signal<'idle' | 'in' | 'hold' | 'out'>('idle');
+  breathingInstruction = signal('Breathe');
+  breathingCountdown = signal(0);
+  private breathingInterval: any;
 
   // Trends data
   trendsData = computed(() => {
@@ -98,6 +103,22 @@ export class AppComponent {
         days: calendarDays,
         weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     };
+  });
+  
+  // --- Feeling Finder ---
+  finderStep = signal(0);
+  finderAnswers = signal<{ energy?: 'high' | 'low', focus?: 'inward' | 'outward' }>({});
+  
+  suggestedEmotions = computed(() => {
+    const answers = this.finderAnswers();
+    if (!answers.energy || !answers.focus) return [];
+
+    if (answers.energy === 'high' && answers.focus === 'outward') return ['Joy', 'Surprise', 'Anger'];
+    if (answers.energy === 'high' && answers.focus === 'inward') return ['Anticipation', 'Trust'];
+    if (answers.energy === 'low' && answers.focus === 'inward') return ['Sadness', 'Fear'];
+    if (answers.energy === 'low' && answers.focus === 'outward') return ['Disgust'];
+
+    return [];
   });
 
   constructor() {
@@ -148,8 +169,8 @@ export class AppComponent {
   }
 
   toggleJournalEntry(id: string): void {
-    this.expandedJournalEntries.update(set => {
-      const newSet = new Set(set);
+    this.expandedJournalEntries.update(expanded => {
+      const newSet = new Set(expanded);
       if (newSet.has(id)) {
         newSet.delete(id);
       } else {
@@ -163,89 +184,40 @@ export class AppComponent {
     return this.emotions().find(e => e.name === emotionName)?.color || 'bg-gray-200';
   }
 
-  setTheme(newTheme: 'light' | 'dark'): void {
-    this.theme.set(newTheme);
+  // --- Theme ---
+  setTheme(theme: 'light' | 'dark'): void {
+    this.theme.set(theme);
   }
 
+  // --- Donation ---
   copyUpiId(): void {
     navigator.clipboard.writeText(this.upiId).then(() => {
-        this.upiCopied.set(true);
-        setTimeout(() => this.upiCopied.set(false), 2000);
+      this.upiCopied.set(true);
+      setTimeout(() => this.upiCopied.set(false), 2000);
     });
   }
 
-  // --- Feeling Finder Logic ---
-  finderStep = signal(0);
-  finderAnswers = signal<{ energy: string | null; focus: string | null }>({ energy: null, focus: null });
-
-  setFinderAnswer(question: 'energy' | 'focus', answer: string) {
-    this.finderAnswers.update(a => ({...a, [question]: answer}));
+  setFinderAnswer(key: 'energy' | 'focus', value: string): void {
+    this.finderAnswers.update(a => ({ ...a, [key]: value }));
     this.finderStep.update(s => s + 1);
   }
 
-  resetFinder() {
+  resetFinder(): void {
     this.finderStep.set(0);
-    this.finderAnswers.set({ energy: null, focus: null });
+    this.finderAnswers.set({});
   }
 
-  suggestedEmotions = computed(() => {
-    const answers = this.finderAnswers();
-    if (answers.energy === 'high' && answers.focus === 'outward') return ['Joy', 'Anger', 'Surprise'];
-    if (answers.energy === 'high' && answers.focus === 'inward') return ['Anticipation', 'Fear'];
-    if (answers.energy === 'low' && answers.focus === 'outward') return ['Trust', 'Sadness'];
-    if (answers.energy === 'low' && answers.focus === 'inward') return ['Disgust', 'Sadness'];
-    return [];
-  });
-  
-  selectSuggestedEmotion(emotionName: string) {
-    const emotion = this.emotionService.getEmotionByName(emotionName);
-    if (emotion) this.selectEmotion(emotion);
+  selectSuggestedEmotion(emotionName: string): void {
+    const emotion = this.emotions().find(e => e.name === emotionName);
+    if (emotion) {
+      this.selectEmotion(emotion);
+    }
     this.resetFinder();
   }
 
-  // --- Strategy Management ---
-  toggleStrategyChecked(id: string): void {
-    this.checkedStrategyIds.update(set => {
-        const newSet = new Set(set);
-        if (newSet.has(id)) {
-            newSet.delete(id);
-        } else {
-            newSet.add(id);
-        }
-        return newSet;
-    });
-  }
-
-  resetStrategyChecks(): void {
-    this.checkedStrategyIds.set(new Set<string>());
-  }
-
-  addStrategy(scenario: ScenarioKey, category: CategoryKey): void {
-    const emotionName = this.selectedEmotion()?.name;
-    if (emotionName) {
-      this.strategyService.addStrategy(emotionName, scenario, category);
-      const strategies = this.selectedEmotionStrategies()?.[scenario]?.[category];
-      if (strategies) {
-        const newStrategy = strategies[strategies.length - 1];
-        this.startEditing(newStrategy);
-      }
-    }
-  }
-
-  deleteStrategy(scenario: ScenarioKey, category: CategoryKey, strategyId: string): void {
-    const emotionName = this.selectedEmotion()?.name;
-    if (emotionName && confirm('Delete this strategy?')) {
-      this.strategyService.deleteStrategy(emotionName, scenario, category, strategyId);
-      this.checkedStrategyIds.update(set => {
-          const newSet = new Set(set);
-          newSet.delete(strategyId);
-          return newSet;
-      });
-    }
-  }
-
+  // --- Strategies ---
   startEditing(strategy: Strategy): void {
-    this.editingStrategy.set({ id: strategy.id, text: strategy.text });
+    this.editingStrategy.set({ ...strategy });
   }
 
   cancelEditing(): void {
@@ -253,105 +225,123 @@ export class AppComponent {
   }
 
   saveStrategy(scenario: ScenarioKey, category: CategoryKey): void {
-    const editState = this.editingStrategy();
-    const emotionName = this.selectedEmotion()?.name;
-    if (editState && emotionName) {
-      this.strategyService.updateStrategyText(emotionName, scenario, category, editState.id, editState.text);
-      this.editingStrategy.set(null);
+    const editing = this.editingStrategy();
+    const emotion = this.selectedEmotion();
+    if (editing && emotion && editing.text.trim()) {
+      this.strategyService.updateStrategyText(emotion.name, scenario, category, editing.id, editing.text.trim());
+    }
+    this.editingStrategy.set(null);
+  }
+
+  addStrategy(scenario: ScenarioKey, category: CategoryKey): void {
+    const emotion = this.selectedEmotion();
+    if (emotion) {
+      this.strategyService.addStrategy(emotion.name, scenario, category);
     }
   }
-  
-  // --- Drag and Drop Logic ---
-  onDragStart(strategy: Strategy, scenario: ScenarioKey, category: CategoryKey, index: number): void {
-    this.draggedStrategy = { strategy, from: { scenario, category, index } };
+
+  deleteStrategy(scenario: ScenarioKey, category: CategoryKey, strategyId: string): void {
+    const emotion = this.selectedEmotion();
+    if (emotion) {
+      this.strategyService.deleteStrategy(emotion.name, scenario, category, strategyId);
+    }
+  }
+
+  toggleStrategyChecked(strategyId: string): void {
+    this.checkedStrategyIds.update(ids => {
+      const newSet = new Set(ids);
+      if (newSet.has(strategyId)) {
+        newSet.delete(strategyId);
+      } else {
+        newSet.add(strategyId);
+      }
+      return newSet;
+    });
+  }
+
+  resetStrategyChecks(): void {
+    this.checkedStrategyIds.set(new Set());
+  }
+
+  // --- Drag and Drop ---
+  onDragStart(strategy: Strategy, fromScenario: ScenarioKey, fromCategory: CategoryKey, fromIndex: number): void {
+    this.draggedStrategy = { strategy, from: { scenario: fromScenario, category: fromCategory, index: fromIndex } };
   }
 
   onDragOver(event: DragEvent): void {
-    event.preventDefault(); // Necessary to allow drop
+    event.preventDefault(); // This is necessary to allow dropping
   }
 
   onDrop(toScenario: ScenarioKey, toCategory: CategoryKey, toIndex: number): void {
     if (!this.draggedStrategy) return;
-    const { strategy: draggedItem, from } = this.draggedStrategy;
+    
+    const { strategy, from } = this.draggedStrategy;
     const emotionName = this.selectedEmotion()?.name;
+
     if (!emotionName) return;
 
-    // Create a mutable copy of the strategies for the current emotion
-    const strategies = this.selectedEmotionStrategies();
-    if (!strategies) return;
+    this.strategyService.strategies.update(allStrategies => {
+      const newStrategies = JSON.parse(JSON.stringify(allStrategies));
+      const emotionStrategies = newStrategies[emotionName];
 
-    // Remove from old list
-    const fromList = [...strategies[from.scenario][from.category]];
-    fromList.splice(from.index, 1);
+      // Remove from source
+      const fromList = emotionStrategies[from.scenario][from.category];
+      fromList.splice(from.index, 1);
 
-    // Add to new list
-    let toList = [...strategies[toScenario][toCategory]];
-    if (from.scenario === toScenario && from.category === toCategory) {
-      toList = fromList; // If same list, use the already modified list
-    }
-    toList.splice(toIndex, 0, draggedItem);
+      // Add to destination
+      const toList = emotionStrategies[toScenario][toCategory];
+      toList.splice(toIndex, 0, strategy);
 
-    // Update state via service
-    if (from.scenario === toScenario && from.category === toCategory) {
-      this.strategyService.reorderStrategies(emotionName, toScenario, toCategory, toList);
-    } else {
-      // If moving between lists, it's a delete and an add in a new position
-      this.strategyService.reorderStrategies(emotionName, from.scenario, from.category, fromList);
-      this.strategyService.reorderStrategies(emotionName, toScenario, toCategory, toList);
-    }
+      return newStrategies;
+    });
 
     this.draggedStrategy = null;
   }
-
-  // --- Guided Breathing ---
-  breathingState = signal<'idle' | 'in' | 'hold1' | 'out' | 'hold2'>('idle');
-  breathingInstruction = signal('Get ready...');
-  breathingCountdown = signal(4);
-  private breathingTimer: any = null;
-
+  
+  // --- Breathing ---
   startBreathing(): void {
     if (this.breathingState() !== 'idle') return;
     this.breathingState.set('in');
-    this.breathingInstruction.set('Breathe In');
-    this.breathingCountdown.set(4);
     this.runBreathingCycle();
   }
 
   stopBreathing(): void {
-    clearTimeout(this.breathingTimer);
+    if (this.breathingInterval) {
+      clearInterval(this.breathingInterval);
+    }
     this.breathingState.set('idle');
-    this.breathingInstruction.set('Get ready...');
+    this.breathingInstruction.set('Breathe');
   }
-  
-  private runBreathingCycle(): void {
-    this.breathingTimer = setTimeout(() => {
-      this.breathingCountdown.update(c => c - 1);
 
-      if (this.breathingCountdown() === 0) {
-        switch (this.breathingState()) {
-          case 'in':
-            this.breathingState.set('hold1');
-            this.breathingInstruction.set('Hold');
-            this.breathingCountdown.set(4);
-            break;
-          case 'hold1':
-            this.breathingState.set('out');
-            this.breathingInstruction.set('Breathe Out');
-            this.breathingCountdown.set(4);
-            break;
-          case 'out':
-            this.breathingState.set('hold2');
-            this.breathingInstruction.set('Hold');
-            this.breathingCountdown.set(4);
-            break;
-          case 'hold2':
-            this.breathingState.set('in');
-            this.breathingInstruction.set('Breathe In');
-            this.breathingCountdown.set(4);
-            break;
-        }
+  private runBreathingCycle(): void {
+    const cycle = [
+      { state: 'in', instruction: 'Breathe In', duration: 4 },
+      { state: 'hold', instruction: 'Hold', duration: 4 },
+      { state: 'out', instruction: 'Breathe Out', duration: 6 },
+    ] as const;
+
+    let currentPhase = -1;
+
+    const nextPhase = () => {
+      if (this.breathingState() === 'idle') {
+        return;
       }
-      this.runBreathingCycle();
-    }, 1000);
+
+      currentPhase = (currentPhase + 1) % cycle.length;
+      const phase = cycle[currentPhase];
+      this.breathingState.set(phase.state);
+      this.breathingInstruction.set(phase.instruction);
+      this.breathingCountdown.set(phase.duration);
+
+      this.breathingInterval = setInterval(() => {
+        this.breathingCountdown.update(c => c - 1);
+        if (this.breathingCountdown() <= 0) {
+          clearInterval(this.breathingInterval);
+          nextPhase();
+        }
+      }, 1000);
+    };
+
+    nextPhase();
   }
 }
