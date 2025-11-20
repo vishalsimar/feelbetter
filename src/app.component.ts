@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Emotion, JournalEntry, Strategy } from './models';
+import { Emotion, JournalEntry, Step, Strategy } from './models';
 import { EmotionService } from './emotion.service';
 import { JournalService } from './journal.service';
 import { StrategyService } from './strategy.service';
@@ -58,9 +58,10 @@ export class AppComponent {
     return strategies[emotion.name];
   });
 
-  // Strategy editing state
-  editingStrategy = signal<{id: string, text: string} | null>(null);
-  checkedStrategyIds = signal(new Set<string>());
+  // --- Strategy State ---
+  editingTarget = signal<{ strategyId: string; stepId?: string; text: string } | null>(null);
+  completedStepIds = signal(new Set<string>());
+  expandedStrategyIds = signal(new Set<string>());
 
   // Drag and drop state
   private draggedStrategy: { strategy: Strategy, from: { scenario: ScenarioKey, category: CategoryKey, index: number } } | null = null;
@@ -147,7 +148,7 @@ export class AppComponent {
     this.selectedEmotion.set(emotion);
     this.selectedScenario.set('self');
     this.setView('detail');
-    this.checkedStrategyIds.set(new Set<string>()); // Reset checkboxes on new emotion
+    this.completedStepIds.set(new Set<string>()); // Reset checkboxes on new emotion
   }
 
   selectScenario(scenario: ScenarioKey): void {
@@ -216,21 +217,34 @@ export class AppComponent {
   }
 
   // --- Strategies ---
-  startEditing(strategy: Strategy): void {
-    this.editingStrategy.set({ ...strategy });
+  startEditingTitle(strategy: Strategy): void {
+    this.editingTarget.set({ strategyId: strategy.id, text: strategy.title });
+  }
+
+  startEditingStep(strategyId: string, step: Step): void {
+    this.editingTarget.set({ strategyId: strategyId, stepId: step.id, text: step.text });
   }
 
   cancelEditing(): void {
-    this.editingStrategy.set(null);
+    this.editingTarget.set(null);
   }
 
-  saveStrategy(scenario: ScenarioKey, category: CategoryKey): void {
-    const editing = this.editingStrategy();
+  saveEdit(scenario: ScenarioKey, category: CategoryKey): void {
+    const editing = this.editingTarget();
     const emotion = this.selectedEmotion();
-    if (editing && emotion && editing.text.trim()) {
-      this.strategyService.updateStrategyText(emotion.name, scenario, category, editing.id, editing.text.trim());
+    if (!editing || !emotion || !editing.text.trim()) {
+      this.cancelEditing();
+      return;
     }
-    this.editingStrategy.set(null);
+
+    if (editing.stepId) {
+      // It's a step
+      this.strategyService.updateStepText(emotion.name, scenario, category, editing.strategyId, editing.stepId, editing.text.trim());
+    } else {
+      // It's a title
+      this.strategyService.updateStrategyTitle(emotion.name, scenario, category, editing.strategyId, editing.text.trim());
+    }
+    this.editingTarget.set(null);
   }
 
   addStrategy(scenario: ScenarioKey, category: CategoryKey): void {
@@ -247,8 +261,34 @@ export class AppComponent {
     }
   }
 
-  toggleStrategyChecked(strategyId: string): void {
-    this.checkedStrategyIds.update(ids => {
+  addStep(scenario: ScenarioKey, category: CategoryKey, strategyId: string): void {
+    const emotion = this.selectedEmotion();
+    if (emotion) {
+        this.strategyService.addStep(emotion.name, scenario, category, strategyId);
+    }
+  }
+
+  deleteStep(scenario: ScenarioKey, category: CategoryKey, strategyId: string, stepId: string): void {
+    const emotion = this.selectedEmotion();
+    if (emotion) {
+        this.strategyService.deleteStep(emotion.name, scenario, category, strategyId, stepId);
+    }
+  }
+
+  toggleStepCompleted(stepId: string): void {
+    this.completedStepIds.update(ids => {
+      const newSet = new Set(ids);
+      if (newSet.has(stepId)) {
+        newSet.delete(stepId);
+      } else {
+        newSet.add(stepId);
+      }
+      return newSet;
+    });
+  }
+  
+  toggleStrategyExpansion(strategyId: string): void {
+    this.expandedStrategyIds.update(ids => {
       const newSet = new Set(ids);
       if (newSet.has(strategyId)) {
         newSet.delete(strategyId);
@@ -259,8 +299,8 @@ export class AppComponent {
     });
   }
 
-  resetStrategyChecks(): void {
-    this.checkedStrategyIds.set(new Set());
+  resetStepChecks(): void {
+    this.completedStepIds.set(new Set());
   }
 
   // --- Drag and Drop ---
@@ -279,6 +319,11 @@ export class AppComponent {
     const emotionName = this.selectedEmotion()?.name;
 
     if (!emotionName) return;
+    
+    if (from.scenario === toScenario && from.category === toCategory && from.index === toIndex) {
+      this.draggedStrategy = null;
+      return;
+    }
 
     this.strategyService.strategies.update(allStrategies => {
       const newStrategies = JSON.parse(JSON.stringify(allStrategies));

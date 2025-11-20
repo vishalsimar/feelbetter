@@ -24,10 +24,16 @@ export interface JournalEntry {
   date: string; // ISO string format
 }
 
+export interface Step {
+  id: string;
+  text: string;
+}
+
 // Models for user-customizable strategies
 export interface Strategy {
   id: string;
-  text: string;
+  title: string;
+  steps: Step[];
 }
 
 export interface StrategyCategory {
