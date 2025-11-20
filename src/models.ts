@@ -3,6 +3,10 @@ export interface Emotion {
   description: string;
   color: string; // Tailwind color class e.g., 'bg-blue-500'
   icon: string; // SVG path data
+  oppositeAction?: {
+    suggestion: string;
+    rationale: string;
+  };
   scenarios: {
     self: StrategyDefCategory;
     friend: StrategyDefCategory;

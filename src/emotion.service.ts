@@ -35,6 +35,10 @@ export class EmotionService {
       description: 'A feeling of sorrow, unhappiness, or grief.',
       color: 'bg-blue-400',
       icon: 'M10 14h4m-2 4a8 8 0 100-16 8 8 0 000 16z',
+      oppositeAction: {
+        suggestion: 'Get active or engage with your surroundings.',
+        rationale: 'Sadness often makes us withdraw. Gently engaging with the world, like going for a walk or tidying a room, can counteract this inertia and lift your mood.'
+      },
       scenarios: {
         self: {
           title: "I'm feeling Sad",
@@ -61,6 +65,10 @@ export class EmotionService {
       description: 'A strong feeling of annoyance, displeasure, or hostility.',
       color: 'bg-red-500',
       icon: 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+      oppositeAction: {
+        suggestion: 'Gently wash your face with cool water or offer a kind gesture.',
+        rationale: 'Anger is a "hot" emotion. The physical sensation of cool water can be physiologically calming. A kind gesture is behaviorally opposite to aggression.'
+      },
       scenarios: {
         self: {
           title: "I'm feeling Angry",
@@ -87,6 +95,10 @@ export class EmotionService {
       description: 'An unpleasant emotion caused by the belief that someone or something is dangerous, likely to cause pain, or a threat.',
       color: 'bg-purple-400',
       icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
+      oppositeAction: {
+        suggestion: 'Approach one small, safe part of what you fear.',
+        rationale: 'Fear urges you to avoid. By taking a tiny, manageable step towards the feared situation, you teach your brain that you can cope and build confidence.'
+      },
       scenarios: {
         self: {
           title: "I'm feeling Fearful",

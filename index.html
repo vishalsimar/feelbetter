@@ -1,9 +1,16 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Feel Better</title>
+  <script>
+    if (localStorage.getItem('feel-better-theme') === 'dark' || (!('feel-better-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* Custom scrollbar for a softer look */

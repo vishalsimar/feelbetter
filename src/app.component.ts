@@ -40,7 +40,7 @@ export class AppComponent {
 
   // Theme management
   private readonly themeKey = 'feel-better-theme';
-  theme = signal<'light' | 'dark'>('dark');
+  theme = signal<'light' | 'dark'>('light');
 
   // Donation state
   readonly upiId = 'vishalsimar@upi';
@@ -71,6 +71,9 @@ export class AppComponent {
   breathingInstruction = signal('Breathe');
   breathingCountdown = signal(0);
   private breathingInterval: any;
+  breathingInhaleDuration = signal(4);
+  breathingHoldDuration = signal(4);
+  breathingExhaleDuration = signal(6);
 
   // Trends data
   trendsData = computed(() => {
@@ -123,12 +126,19 @@ export class AppComponent {
   });
 
   constructor() {
+    // Initialize theme from storage or system preference.
+    // The FOUC (flash of unstyled content) is prevented by a small script in index.html <head>.
     const storedTheme = localStorage.getItem(this.themeKey) as 'light' | 'dark' | null;
-    if (storedTheme) this.theme.set(storedTheme);
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    this.theme.set(storedTheme || (prefersDark ? 'dark' : 'light'));
 
     effect(() => {
       const currentTheme = this.theme();
-      document.documentElement.classList.toggle('dark', currentTheme === 'dark');
+      if (currentTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
       localStorage.setItem(this.themeKey, currentTheme);
     });
     
@@ -196,6 +206,24 @@ export class AppComponent {
       this.upiCopied.set(true);
       setTimeout(() => this.upiCopied.set(false), 2000);
     });
+  }
+
+  // --- Data Export ---
+  exportJournal(): void {
+    const entries = this.journalEntries();
+    if (entries.length === 0) {
+        return;
+    }
+    const dataStr = JSON.stringify(entries, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `feel-better-journal-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   setFinderAnswer(key: 'energy' | 'focus', value: string): void {
@@ -344,6 +372,12 @@ export class AppComponent {
   }
   
   // --- Breathing ---
+  setBreathingPattern(inhale: number, hold: number, exhale: number): void {
+    this.breathingInhaleDuration.set(inhale);
+    this.breathingHoldDuration.set(hold);
+    this.breathingExhaleDuration.set(exhale);
+  }
+
   startBreathing(): void {
     if (this.breathingState() !== 'idle') return;
     this.breathingState.set('in');
@@ -360,9 +394,9 @@ export class AppComponent {
 
   private runBreathingCycle(): void {
     const cycle = [
-      { state: 'in', instruction: 'Breathe In', duration: 4 },
-      { state: 'hold', instruction: 'Hold', duration: 4 },
-      { state: 'out', instruction: 'Breathe Out', duration: 6 },
+      { state: 'in', instruction: 'Breathe In', duration: this.breathingInhaleDuration() },
+      { state: 'hold', instruction: 'Hold', duration: this.breathingHoldDuration() },
+      { state: 'out', instruction: 'Breathe Out', duration: this.breathingExhaleDuration() },
     ] as const;
 
     let currentPhase = -1;
