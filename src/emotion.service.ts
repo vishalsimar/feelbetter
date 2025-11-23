@@ -175,7 +175,7 @@ export class EmotionService {
     {
       name: 'Disgust',
       description: 'A feeling of revulsion or strong disapproval aroused by something unpleasant or offensive.',
-      color: 'bg-emerald-700',
+      color: 'bg-emerald-500',
       icon: 'M12 2a10 10 0 100 20 10 10 0 000-20zM9 10h.01M15 10h.01M8 14s1.5 2 4 2 4-2 4-2',
       scenarios: {
         self: {
