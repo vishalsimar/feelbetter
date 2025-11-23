@@ -1,7 +1,8 @@
 export interface Emotion {
   name: string;
   description: string;
-  color: string; // Tailwind color class e.g., 'bg-blue-500'
+  color: string; // Tailwind color class e.g., 'bg-blue-500' for journal, trends, etc.
+  homeStyle: string; // Tailwind classes for the home screen button.
   icon: string; // SVG path data
   oppositeAction?: {
     suggestion: string;
@@ -53,4 +54,15 @@ export interface UserEmotionStrategies {
         friend: StrategyCategory;
         caused: StrategyCategory;
     }
+}
+
+export interface ThoughtChallengerRecord {
+  situation: string;
+  emotion: string;
+  initialIntensity: number;
+  automaticThought: string;
+  evidenceFor: string;
+  evidenceAgainst: string;
+  alternativeThought: string;
+  finalIntensity: number;
 }

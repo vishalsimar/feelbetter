@@ -7,7 +7,8 @@ export class EmotionService {
     {
       name: 'Joy',
       description: 'A feeling of great pleasure and happiness.',
-      color: 'bg-yellow-300',
+      color: 'bg-yellow-400 dark:bg-yellow-500',
+      homeStyle: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800 hover:border-yellow-400 dark:hover:border-yellow-600',
       icon: 'M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
       scenarios: {
         self: {
@@ -33,7 +34,8 @@ export class EmotionService {
     {
       name: 'Sadness',
       description: 'A feeling of sorrow, unhappiness, or grief.',
-      color: 'bg-blue-400',
+      color: 'bg-blue-400 dark:bg-blue-500',
+      homeStyle: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-400 border border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600',
       icon: 'M10 14h4m-2 4a8 8 0 100-16 8 8 0 000 16z',
       oppositeAction: {
         suggestion: 'Get active or engage with your surroundings.',
@@ -63,7 +65,8 @@ export class EmotionService {
     {
       name: 'Anger',
       description: 'A strong feeling of annoyance, displeasure, or hostility.',
-      color: 'bg-red-500',
+      color: 'bg-red-500 dark:bg-red-500',
+      homeStyle: 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400 border border-red-200 dark:border-red-800 hover:border-red-400 dark:hover:border-red-600',
       icon: 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
       oppositeAction: {
         suggestion: 'Gently wash your face with cool water or offer a kind gesture.',
@@ -93,7 +96,8 @@ export class EmotionService {
     {
       name: 'Fear',
       description: 'An unpleasant emotion caused by the belief that someone or something is dangerous, likely to cause pain, or a threat.',
-      color: 'bg-purple-400',
+      color: 'bg-purple-500 dark:bg-purple-500',
+      homeStyle: 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-400 border border-purple-200 dark:border-purple-800 hover:border-purple-400 dark:hover:border-purple-600',
       icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
       oppositeAction: {
         suggestion: 'Approach one small, safe part of what you fear.',
@@ -123,7 +127,8 @@ export class EmotionService {
     {
       name: 'Surprise',
       description: 'The feeling of astonishment or amazement caused by something unexpected.',
-      color: 'bg-teal-300',
+      color: 'bg-cyan-400 dark:bg-cyan-500',
+      homeStyle: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800 hover:border-cyan-400 dark:hover:border-cyan-600',
       icon: 'M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z',
       scenarios: {
         self: {
@@ -149,7 +154,8 @@ export class EmotionService {
     {
       name: 'Anticipation',
       description: 'A feeling of excitement or anxiety about something that is going to happen.',
-      color: 'bg-orange-300',
+      color: 'bg-orange-400 dark:bg-orange-500',
+      homeStyle: 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-400 border border-orange-200 dark:border-orange-800 hover:border-orange-400 dark:hover:border-orange-600',
       icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
       scenarios: {
         self: {
@@ -175,7 +181,8 @@ export class EmotionService {
     {
       name: 'Disgust',
       description: 'A feeling of revulsion or strong disapproval aroused by something unpleasant or offensive.',
-      color: 'bg-emerald-500',
+      color: 'bg-green-500 dark:bg-green-600',
+      homeStyle: 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400 border border-green-200 dark:border-green-800 hover:border-green-400 dark:hover:border-green-600',
       icon: 'M12 2a10 10 0 100 20 10 10 0 000-20zM9 10h.01M15 10h.01M8 14s1.5 2 4 2 4-2 4-2',
       scenarios: {
         self: {
@@ -201,7 +208,8 @@ export class EmotionService {
     {
       name: 'Trust',
       description: 'A firm belief in the reliability, truth, ability, or strength of someone or something.',
-      color: 'bg-sky-500',
+      color: 'bg-emerald-400 dark:bg-emerald-500',
+      homeStyle: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 dark:hover:border-emerald-600',
       icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
       scenarios: {
         self: {

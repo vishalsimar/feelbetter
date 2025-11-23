@@ -1,9 +1,9 @@
-<div class="min-h-screen flex flex-col font-sans bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300">
+<div class="min-h-screen flex flex-col bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-200 transition-colors duration-300">
   <main class="flex-grow p-4 pb-24 max-w-4xl mx-auto w-full">
     <!-- Header -->
-    <header class="text-center mb-8" [class.hidden]="currentView() === 'breathing'">
-      <h1 class="text-4xl font-bold text-slate-700 dark:text-slate-200">Feel Better</h1>
-      <p class="text-slate-500 dark:text-slate-400 mt-2">A toolkit for your emotional world.</p>
+    <header class="text-center mb-10" [class.hidden]="currentView() === 'breathing' || currentView() === 'thoughtChallenger'">
+      <h1 class="text-5xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Feel Better</h1>
+      <p class="text-lg text-slate-600 dark:text-slate-400 mt-3">A toolkit for your emotional world.</p>
     </header>
 
     @switch (currentView()) {
@@ -11,25 +11,34 @@
       @case ('home') {
         <div class="space-y-12">
             <div class="text-center">
-              <h2 class="text-2xl font-semibold mb-2 text-slate-700 dark:text-slate-200">How are you feeling today?</h2>
-              <p class="text-slate-600 dark:text-slate-300">Select an emotion to explore ways to navigate it.</p>
+              <h2 class="text-3xl font-bold mb-3 text-slate-800 dark:text-slate-100">How are you feeling today?</h2>
+              <p class="text-slate-600 dark:text-slate-400">Select an emotion to explore ways to navigate it.</p>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               @for (emotion of emotions(); track emotion.name) {
                 <button (click)="selectEmotion(emotion)" 
-                        class="p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 flex flex-col items-center justify-center text-slate-800 dark:border dark:border-transparent dark:hover:border-slate-500"
-                        [class]="emotion.color">
-                  <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="emotion.icon"></path></svg>
-                  <span class="font-semibold text-lg">{{ emotion.name }}</span>
+                        class="p-4 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 flex flex-col items-center justify-center"
+                        [class]="emotion.homeStyle">
+                  <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="emotion.icon"></path></svg>
+                  <span class="font-bold text-lg">{{ emotion.name }}</span>
                 </button>
               }
             </div>
-            <div class="text-center p-6 bg-slate-100 dark:bg-slate-800 rounded-lg">
-              <h3 class="text-xl font-semibold mb-2 text-slate-700 dark:text-slate-200">Not sure how you feel?</h3>
-              <p class="text-slate-600 dark:text-slate-300 mb-4">That's perfectly okay. Let's try to figure it out together.</p>
-              <button (click)="setView('finder')" class="bg-indigo-500 text-white font-bold py-2 px-6 rounded-full hover:bg-indigo-600 transition-colors">
-                Help Me Find My Feeling
-              </button>
+            <div class="grid md:grid-cols-2 gap-6">
+              <div class="text-center p-6 bg-gradient-to-br from-indigo-50 via-white to-white dark:from-indigo-900/30 dark:via-slate-800/50 dark:to-slate-900/50 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
+                <h3 class="text-xl font-bold mb-2 text-slate-800 dark:text-slate-100">Not sure how you feel?</h3>
+                <p class="text-slate-600 dark:text-slate-400 mb-4">That's perfectly okay. Let's try to figure it out together.</p>
+                <button (click)="setView('finder')" class="bg-indigo-500 text-white font-bold py-2 px-6 rounded-full hover:bg-indigo-600 transition-colors transform hover:scale-105">
+                  Help Me Find My Feeling
+                </button>
+              </div>
+              <div class="text-center p-6 bg-gradient-to-br from-purple-50 via-white to-white dark:from-purple-900/30 dark:via-slate-800/50 dark:to-slate-900/50 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
+                <h3 class="text-xl font-bold mb-2 text-slate-800 dark:text-slate-100">Challenge a Thought</h3>
+                <p class="text-slate-600 dark:text-slate-400 mb-4">A guided process to examine and reframe unhelpful thoughts.</p>
+                <button (click)="startThoughtChallenger()" class="bg-purple-500 text-white font-bold py-2 px-6 rounded-full hover:bg-purple-600 transition-colors transform hover:scale-105">
+                  Start the Thought Challenger
+                </button>
+              </div>
             </div>
         </div>
       }
@@ -38,37 +47,37 @@
       @case ('detail') {
         @if (selectedEmotion(); as emotion) {
           <div class="w-full">
-            <button (click)="setView('home')" class="mb-6 flex items-center text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-semibold">
+            <button (click)="setView('home')" class="mb-6 flex items-center text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-bold">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
               Back to Emotions
             </button>
             <div class="text-center mb-6">
-              <h2 class="text-3xl font-bold">{{ emotion.name }}</h2>
-              <p class="text-slate-500 dark:text-slate-400 mt-2">{{ emotion.description }}</p>
+              <h2 class="text-4xl font-bold text-slate-800 dark:text-slate-100">{{ emotion.name }}</h2>
+              <p class="text-slate-600 dark:text-slate-400 mt-2 text-lg">{{ emotion.description }}</p>
             </div>
 
             @if (emotion.oppositeAction) {
-              <div class="my-6 p-4 bg-teal-50 dark:bg-teal-900/50 border-l-4 border-teal-400 dark:border-teal-600 rounded-r-lg">
+              <div class="my-8 p-4 bg-teal-100/50 dark:bg-teal-900/20 border-l-4 border-teal-400 dark:border-teal-500 rounded-r-lg">
                 <div class="flex items-start">
                   <div class="flex-shrink-0">
                     <svg class="h-6 w-6 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                     </svg>
                   </div>
-                  <div class="ml-3">
-                    <h3 class="text-lg font-semibold text-teal-800 dark:text-teal-200">Try an Opposite Action</h3>
+                  <div class="ml-4">
+                    <h3 class="text-lg font-bold text-teal-800 dark:text-teal-200">Try an Opposite Action</h3>
                     <p class="mt-1 font-semibold text-slate-800 dark:text-slate-200">{{ emotion.oppositeAction.suggestion }}</p>
-                    <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{{ emotion.oppositeAction.rationale }}</p>
+                    <p class="mt-1 text-slate-600 dark:text-slate-400">{{ emotion.oppositeAction.rationale }}</p>
                   </div>
                 </div>
               </div>
             }
             
-            <div class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900 pb-4 transition-colors duration-300">
+            <div class="sticky top-0 z-10 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-sm pt-2 pb-4 transition-colors duration-300">
               <div class="flex border-b border-slate-200 dark:border-slate-700 justify-center">
                 @for (scenarioKey of ['self', 'friend', 'caused']; track scenarioKey) {
                   <button (click)="selectScenario(scenarioKey)" 
-                          class="px-4 py-3 font-semibold transition-colors text-sm sm:text-base"
+                          class="px-4 sm:px-6 py-4 font-semibold transition-colors text-base"
                           [class]="selectedScenario() === scenarioKey ? 'border-b-2 border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100'">
                     {{ emotion.scenarios[scenarioKey].title }}
                   </button>
@@ -90,32 +99,32 @@
                 <div class="space-y-8 pt-4">
                   @for (category of [['immediate', 'Immediate Actions'], ['shortTerm', 'Short-Term Strategies'], ['longTerm', 'Long-Term Practices']]; track category[0]) {
                     <div>
-                      <h3 class="font-bold text-lg mb-3 text-slate-700 dark:text-slate-200">{{ category[1] }}</h3>
-                      <div class="space-y-3" (dragover)="onDragOver($event)" (drop)="onDrop(selectedScenario(), category[0], scenario[category[0]].length)">
+                      <h3 class="font-bold text-xl mb-4 text-slate-800 dark:text-slate-100">{{ category[1] }}</h3>
+                      <div class="space-y-4" (dragover)="onDragOver($event)" (drop)="onDrop(selectedScenario(), category[0], scenario[category[0]].length)">
                         @for (strategy of scenario[category[0]]; track strategy.id; let i = $index) {
-                          <div class="bg-slate-100 dark:bg-slate-800 rounded-lg transition-shadow duration-200"
+                          <div class="bg-white dark:bg-slate-800/50 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-700/60 transition-shadow duration-200"
                               draggable="true" 
                               (dragstart)="onDragStart(strategy, selectedScenario(), category[0], i)"
                               (dragover)="onDragOver($event)"
                               (drop)="$event.stopPropagation(); onDrop(selectedScenario(), category[0], i)">
                               
                               @if(strategy.toolId === 'grounding') {
-                                <div class="bg-teal-50 dark:bg-teal-900/50 rounded-t-lg p-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-700">
+                                <div class="bg-teal-100/50 dark:bg-teal-900/20 rounded-t-xl p-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-700">
                                   <div>
                                     <h4 class="font-semibold text-teal-800 dark:text-teal-200">Interactive Tool: {{ strategy.title }}</h4>
                                     <p class="text-sm text-slate-600 dark:text-slate-400">A guided exercise to ground you in the present.</p>
                                   </div>
-                                  <button (click)="startTool('grounding')" class="bg-teal-500 text-white font-bold py-2 px-4 rounded-md hover:bg-teal-600 transition-colors flex-shrink-0">
+                                  <button (click)="startTool('grounding')" class="bg-teal-500 text-white font-bold py-2 px-4 rounded-full hover:bg-teal-600 transition-colors flex-shrink-0">
                                     Start
                                   </button>
                                 </div>
                               }
                               
                               <div class="flex items-center p-3 group">
-                                <svg class="w-6 h-6 mr-2 text-slate-400 flex-shrink-0 cursor-grab" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                                <svg class="w-6 h-6 mr-3 text-slate-400 flex-shrink-0 cursor-grab" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 4v16M14 4v16" transform="rotate(90 12 12)" /></svg>
                                 
                                 @if (editingTarget()?.strategyId === strategy.id && !editingTarget()?.stepId) {
-                                  <input type="text" [(ngModel)]="editingTarget().text" (keydown.enter)="saveEdit(selectedScenario(), category[0])" (keydown.escape)="cancelEditing()" (blur)="saveEdit(selectedScenario(), category[0])" class="flex-grow bg-transparent border-b border-indigo-500 focus:outline-none dark:text-slate-100 font-semibold" autofocus>
+                                  <input type="text" [(ngModel)]="editingTarget().text" (keydown.enter)="saveEdit(selectedScenario(), category[0])" (keydown.escape)="cancelEditing()" (blur)="saveEdit(selectedScenario(), category[0])" class="flex-grow bg-transparent border-b-2 border-indigo-500 focus:outline-none dark:text-slate-100 font-semibold" autofocus>
                                   <button (click)="saveEdit(selectedScenario(), category[0])" class="ml-2 text-green-500 hover:text-green-600 p-1">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                   </button>
@@ -138,16 +147,16 @@
                               <div class="grid transition-[grid-template-rows] duration-300 ease-in-out" [class]="expandedStrategyIds().has(strategy.id) ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
                                 <div class="overflow-hidden">
                                   <div class="pl-8 pr-4 pb-3 border-t border-slate-200 dark:border-slate-700">
-                                    <div class="space-y-2 pt-3">
+                                    <div class="space-y-3 pt-4">
                                       @for (step of strategy.steps; track step.id) {
                                         <div class="flex items-center group">
                                           @if (editingTarget()?.stepId === step.id) {
-                                            <input type="text" [(ngModel)]="editingTarget().text" (keydown.enter)="saveEdit(selectedScenario(), category[0])" (keydown.escape)="cancelEditing()" (blur)="saveEdit(selectedScenario(), category[0])" class="flex-grow bg-transparent border-b border-indigo-500 focus:outline-none dark:text-slate-100" autofocus>
+                                            <input type="text" [(ngModel)]="editingTarget().text" (keydown.enter)="saveEdit(selectedScenario(), category[0])" (keydown.escape)="cancelEditing()" (blur)="saveEdit(selectedScenario(), category[0])" class="flex-grow bg-transparent border-b-2 border-indigo-500 focus:outline-none dark:text-slate-100" autofocus>
                                             <button (click)="saveEdit(selectedScenario(), category[0])" class="ml-2 text-green-500 hover:text-green-600 p-1">
                                               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                             </button>
                                           } @else {
-                                            <input type="checkbox" [id]="step.id" (change)="toggleStepCompleted(step.id)" [checked]="completedStepIds().has(step.id)" class="h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:bg-slate-700 dark:border-slate-600 mr-3 flex-shrink-0">
+                                            <input type="checkbox" [id]="step.id" (change)="toggleStepCompleted(step.id)" [checked]="completedStepIds().has(step.id)" class="h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:bg-slate-700 dark:border-slate-600 mr-4 flex-shrink-0 cursor-pointer">
                                             <label [for]="step.id" class="flex-grow text-slate-700 dark:text-slate-300 cursor-pointer">{{ step.text }}</label>
                                             <div class="opacity-0 group-hover:opacity-100 transition-opacity">
                                               <button (click)="startEditingStep(strategy.id, step)" class="ml-2 text-slate-500 hover:text-indigo-600 p-1">
@@ -187,31 +196,31 @@
       <!-- FEELING FINDER VIEW -->
       @case ('finder') {
         <div class="text-center">
-          <button (click)="setView('home')" class="mb-6 flex items-center text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-semibold mx-auto">
+          <button (click)="setView('home')" class="mb-6 flex items-center text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-bold mx-auto">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
               Back to Emotions
             </button>
-          <h2 class="text-2xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Let's explore...</h2>
+          <h2 class="text-3xl font-bold mb-4 text-slate-800 dark:text-slate-100">Let's explore...</h2>
           
           @if(finderStep() === 0) {
-            <p class="text-slate-600 dark:text-slate-300 mb-6">Is your energy level high or low right now?</p>
+            <p class="text-slate-600 dark:text-slate-400 mb-6 text-lg">Is your energy level high or low right now?</p>
             <div class="flex justify-center gap-4">
-              <button (click)="setFinderAnswer('energy', 'high')" class="bg-yellow-300 p-6 rounded-lg font-semibold text-slate-800 hover:scale-105 transition-transform">High Energy</button>
-              <button (click)="setFinderAnswer('energy', 'low')" class="bg-blue-300 p-6 rounded-lg font-semibold text-slate-800 hover:scale-105 transition-transform">Low Energy</button>
+              <button (click)="setFinderAnswer('energy', 'high')" class="bg-amber-300 dark:bg-amber-500 text-slate-900 dark:text-white p-8 rounded-xl font-bold text-lg hover:scale-105 transition-transform shadow-lg">High Energy</button>
+              <button (click)="setFinderAnswer('energy', 'low')" class="bg-sky-300 dark:bg-sky-500 text-slate-900 dark:text-white p-8 rounded-xl font-bold text-lg hover:scale-105 transition-transform shadow-lg">Low Energy</button>
             </div>
           }
           @if(finderStep() === 1) {
-            <p class="text-slate-600 dark:text-slate-300 mb-6">Is your focus more on yourself (inward) or the world around you (outward)?</p>
+            <p class="text-slate-600 dark:text-slate-400 mb-6 text-lg">Is your focus more on yourself (inward) or the world around you (outward)?</p>
             <div class="flex justify-center gap-4">
-              <button (click)="setFinderAnswer('focus', 'inward')" class="bg-purple-300 p-6 rounded-lg font-semibold text-slate-800 hover:scale-105 transition-transform">Inward</button>
-              <button (click)="setFinderAnswer('focus', 'outward')" class="bg-green-300 p-6 rounded-lg font-semibold text-slate-800 hover:scale-105 transition-transform">Outward</button>
+              <button (click)="setFinderAnswer('focus', 'inward')" class="bg-violet-300 dark:bg-violet-500 text-slate-900 dark:text-white p-8 rounded-xl font-bold text-lg hover:scale-105 transition-transform shadow-lg">Inward</button>
+              <button (click)="setFinderAnswer('focus', 'outward')" class="bg-teal-300 dark:bg-teal-500 text-slate-900 dark:text-white p-8 rounded-xl font-bold text-lg hover:scale-105 transition-transform shadow-lg">Outward</button>
             </div>
           }
           @if(finderStep() === 2) {
-            <p class="text-slate-600 dark:text-slate-300 mb-6">Based on your answers, you might be feeling one of these. Does one resonate?</p>
+            <p class="text-slate-600 dark:text-slate-400 mb-6 text-lg">Based on your answers, you might be feeling one of these. Does one resonate?</p>
             <div class="flex justify-center gap-4 flex-wrap">
               @for (emotionName of suggestedEmotions(); track emotionName) {
-                <button (click)="selectSuggestedEmotion(emotionName)" class="p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 text-slate-800" [class]="getEmotionColor(emotionName)">
+                <button (click)="selectSuggestedEmotion(emotionName)" class="p-4 rounded-xl shadow-lg hover:shadow-xl transition-shadow transform hover:-translate-y-1 text-slate-900 dark:text-white font-bold" [class]="getEmotionColor(emotionName)">
                     {{ emotionName }}
                 </button>
               }
@@ -219,7 +228,7 @@
                 <p class="text-slate-500 dark:text-slate-400">Could not determine a suggestion. Please try again.</p>
               }
             </div>
-             <button (click)="resetFinder()" class="mt-8 text-indigo-500 hover:underline">Start Over</button>
+             <button (click)="resetFinder()" class="mt-8 text-indigo-500 hover:underline font-semibold">Start Over</button>
           }
         </div>
       }
@@ -227,9 +236,9 @@
       <!-- JOURNAL VIEW -->
       @case ('journal') {
         <div>
-          <h2 class="text-2xl font-semibold mb-4 text-center text-slate-700 dark:text-slate-200">My Journal</h2>
-          <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md mb-8">
-            <h3 class="font-bold text-lg mb-4 text-slate-700 dark:text-slate-200">New Entry</h3>
+          <h2 class="text-3xl font-bold mb-6 text-center text-slate-800 dark:text-slate-100">My Journal</h2>
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg mb-8 border border-slate-200/80 dark:border-slate-700/60">
+            <h3 class="font-bold text-xl mb-4 text-slate-800 dark:text-slate-100">New Entry</h3>
             <form (submit)="submitJournalEntry()">
               <div class="mb-4">
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">How are you feeling?</label>
@@ -237,11 +246,11 @@
                   @for(emotion of emotions(); track emotion.name) {
                     <button type="button" 
                             (click)="newJournalEmotion.set(emotion.name)"
-                            class="p-2 rounded-lg text-slate-800 font-semibold border-2 transition-all duration-150"
+                            class="p-2 rounded-lg text-slate-900 dark:text-white font-semibold border-2 border-transparent transition-all duration-150"
                             [class]="emotion.color"
-                            [class.ring-2]="newJournalEmotion() === emotion.name"
+                            [class.ring-4]="newJournalEmotion() === emotion.name"
                             [class.ring-offset-2]="newJournalEmotion() === emotion.name"
-                            [class.ring-indigo-500]="newJournalEmotion() === emotion.name"
+                            [class.ring-indigo-400]="newJournalEmotion() === emotion.name"
                             [class.dark:ring-offset-slate-800]="newJournalEmotion() === emotion.name">
                       {{ emotion.name }}
                     </button>
@@ -250,19 +259,19 @@
               </div>
               <div class="mb-4">
                 <label for="notes" class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">What's on your mind?</label>
-                <textarea id="notes" [(ngModel)]="newJournalNotes" name="notes" rows="4" class="w-full p-2 border border-slate-300 rounded-md dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-400" placeholder="Write about your thoughts and feelings..."></textarea>
+                <textarea id="notes" [(ngModel)]="newJournalNotes" name="notes" rows="4" class="w-full p-2 border border-slate-300 rounded-md dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="Write about your thoughts and feelings..."></textarea>
               </div>
-              <button type="submit" class="bg-indigo-500 text-white font-bold py-2 px-4 rounded-md hover:bg-indigo-600 transition-colors w-full">Save Entry</button>
+              <button type="submit" class="bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-indigo-600 transition-colors w-full">Save Entry</button>
             </form>
           </div>
 
-          <h3 class="font-bold text-lg mb-4 text-center text-slate-700 dark:text-slate-200">Past Entries</h3>
+          <h3 class="font-bold text-xl mb-4 text-center text-slate-800 dark:text-slate-100">Past Entries</h3>
           <div class="space-y-4">
             @for (entry of journalEntries(); track entry.id) {
-              <div class="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm flex items-start justify-between">
-                <div>
+              <div class="bg-white dark:bg-slate-800/80 p-4 rounded-xl shadow-sm flex items-start justify-between border-l-4" [class]="getEmotionBorderColor(entry.emotion)">
+                <div class="flex-grow">
                     <div class="flex items-center mb-2">
-                      <span class="font-semibold px-2 py-1 rounded-full text-sm mr-2 text-slate-800" [class]="getEmotionColor(entry.emotion)">{{ entry.emotion }}</span>
+                      <span class="font-bold px-3 py-1 rounded-full text-sm mr-3 text-slate-900 dark:text-white" [class]="getEmotionColor(entry.emotion)">{{ entry.emotion }}</span>
                       <span class="text-sm text-slate-500 dark:text-slate-400">{{ entry.date | date:'medium' }}</span>
                     </div>
                     @if (entry.notes.length > journalPreviewCharLimit) {
@@ -279,7 +288,7 @@
                       <p class="text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{{ entry.notes }}</p>
                     }
                 </div>
-                <button (click)="deleteJournalEntry(entry.id)" class="text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-500 transition-colors p-1">
+                <button (click)="deleteJournalEntry(entry.id)" class="text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-500 transition-colors p-1 ml-2 flex-shrink-0">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 </button>
               </div>
@@ -293,41 +302,41 @@
       <!-- TRENDS VIEW -->
       @case ('trends') {
         <div>
-          <h2 class="text-2xl font-semibold mb-1 text-center text-slate-700 dark:text-slate-200">Your Emotional Trends</h2>
-          <p class="text-center text-slate-500 dark:text-slate-400 mb-6">{{ trendsData().monthName }} {{ trendsData().year }}</p>
-          <div class="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-lg shadow-md">
+          <h2 class="text-3xl font-bold mb-1 text-center text-slate-800 dark:text-slate-100">Your Emotional Trends</h2>
+          <p class="text-center text-slate-600 dark:text-slate-400 mb-6 text-lg">{{ trendsData().monthName }} {{ trendsData().year }}</p>
+          <div class="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-xl shadow-lg">
             <div class="grid grid-cols-7 text-center font-bold text-sm text-slate-600 dark:text-slate-300 mb-2">
                 @for (day of trendsData().weekdays; track day) { <div>{{day}}</div> }
             </div>
             <div class="grid grid-cols-7 gap-1">
                 @for(day of trendsData().days; track $index) {
-                    <div class="relative w-full h-12 sm:h-16 flex items-center justify-center rounded overflow-hidden"
-                         [class]="day.colors.length === 0 ? 'bg-slate-100 dark:bg-slate-700' : ''">
-
-                        @if (day.colors.length > 0) {
-                            <div class="absolute inset-0 flex w-full h-full">
-                                @for (color of day.colors; track $index) {
-                                    <div class="h-full" style="flex: 1 1 0%;" [class]="color"></div>
-                                }
-                            </div>
-                        }
+                    <div class="relative w-full aspect-square flex justify-center pt-1 rounded-lg"
+                         [class]="day.date ? 'bg-slate-50 dark:bg-slate-700/50' : ''">
 
                         @if(day.date) {
-                            <span class="relative text-xs sm:text-sm"
-                                  [class]="day.colors.length > 0 ? 'font-bold text-white mix-blend-difference' : 'text-slate-400 dark:text-slate-500'">
+                            <span class="relative text-xs sm:text-sm font-semibold"
+                                  [class]="day.colors.length > 0 ? 'text-slate-700 dark:text-slate-200' : 'text-slate-400 dark:text-slate-500'">
                                 {{ day.date }}
                             </span>
+                        }
+                        
+                        @if (day.colors.length > 0) {
+                            <div class="absolute bottom-1.5 left-1.5 right-1.5 flex justify-center items-end gap-1 flex-wrap px-1">
+                                @for (color of day.colors; track $index) {
+                                    <div class="w-2 h-2 rounded-full" [class]="color"></div>
+                                }
+                            </div>
                         }
                     </div>
                 }
             </div>
           </div>
-          <div class="mt-6">
-              <h3 class="font-semibold text-lg mb-2 text-center text-slate-700 dark:text-slate-200">Legend</h3>
-              <div class="flex flex-wrap justify-center gap-2">
+          <div class="mt-8">
+              <h3 class="font-bold text-lg mb-3 text-center text-slate-800 dark:text-slate-100">Legend</h3>
+              <div class="flex flex-wrap justify-center gap-x-4 gap-y-2">
                   @for (emotion of emotions(); track emotion.name) {
                       <div class="flex items-center">
-                          <span class="w-4 h-4 rounded-full mr-2" [class]="emotion.color"></span>
+                          <span class="w-3.5 h-3.5 rounded-full mr-2" [class]="emotion.color"></span>
                           <span class="text-sm text-slate-600 dark:text-slate-300">{{ emotion.name }}</span>
                       </div>
                   }
@@ -338,30 +347,29 @@
 
       <!-- SETTINGS VIEW -->
       @case ('settings') {
-        <div>
-          <h2 class="text-2xl font-semibold mb-6 text-center text-slate-700 dark:text-slate-200">Settings</h2>
+        <div class="space-y-8">
+          <h2 class="text-3xl font-bold text-center text-slate-800 dark:text-slate-100">Settings</h2>
           
-          <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md mb-8">
-            <h3 class="font-bold text-lg mb-4 text-slate-700 dark:text-slate-200">Theme</h3>
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-200/80 dark:border-slate-700/60">
+            <h3 class="font-bold text-xl mb-4 text-slate-800 dark:text-slate-100">Theme</h3>
             <div class="flex gap-4">
-              <button (click)="setTheme('light')" class="w-full p-3 rounded-md text-center font-semibold border-2" 
+              <button (click)="setTheme('light')" class="w-full p-3 rounded-lg text-center font-semibold border-2 transition-colors" 
                       [class]="theme() === 'light' ? 'border-indigo-500 bg-indigo-50 dark:bg-slate-700/50' : 'border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700'">
                 Light
               </button>
-              <button (click)="setTheme('dark')" class="w-full p-3 rounded-md text-center font-semibold border-2" 
+              <button (click)="setTheme('dark')" class="w-full p-3 rounded-lg text-center font-semibold border-2 transition-colors" 
                       [class]="theme() === 'dark' ? 'border-indigo-500 bg-indigo-50 dark:bg-slate-700/50' : 'border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700'">
                 Dark
               </button>
             </div>
           </div>
 
-          <!-- Data Management Card -->
-          <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md mt-8">
-              <h3 class="font-bold text-lg mb-2 text-slate-700 dark:text-slate-200">Data Management</h3>
-              <p class="text-slate-600 dark:text-slate-300 mb-4">
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-200/80 dark:border-slate-700/60">
+              <h3 class="font-bold text-xl mb-2 text-slate-800 dark:text-slate-100">Data Management</h3>
+              <p class="text-slate-600 dark:text-slate-400 mb-4">
                   Your journal data is stored only on this device. You can export it as a JSON file for your records.
               </p>
-              <button (click)="exportJournal()" class="bg-indigo-500 text-white font-bold py-2 px-4 rounded-md hover:bg-indigo-600 transition-colors w-full disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed" [disabled]="journalEntries().length === 0">
+              <button (click)="exportJournal()" class="bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-indigo-600 transition-colors w-full disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed" [disabled]="journalEntries().length === 0">
                   Export Journal
               </button>
               @if(journalEntries().length === 0) {
@@ -369,9 +377,9 @@
               }
           </div>
       
-          <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md mt-8">
-            <h3 class="font-bold text-lg mb-2 text-slate-700 dark:text-slate-200">Support "Feel Better"</h3>
-            <p class="text-slate-600 dark:text-slate-300 mb-4">
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-200/80 dark:border-slate-700/60">
+            <h3 class="font-bold text-xl mb-2 text-slate-800 dark:text-slate-100">Support "Feel Better"</h3>
+            <p class="text-slate-600 dark:text-slate-400 mb-4">
               This app is free, ad-free, and always will be. If you find it helpful, please consider a small donation to support its maintenance and development.
             </p>
             <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md flex items-center justify-between gap-4">
@@ -386,18 +394,19 @@
       <!-- GUIDED BREATHING VIEW -->
       @case ('breathing') {
         <div class="fixed inset-0 flex flex-col items-center justify-center p-4 bg-slate-50 dark:bg-slate-900 z-50">
-          <button (click)="setView('home')" class="absolute top-4 left-4 flex items-center text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-semibold">
+          <button (click)="setView('home')" class="absolute top-4 left-4 flex items-center text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-bold">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
               Back
           </button>
           <div class="text-center">
             <div class="relative w-48 h-48 sm:w-64 sm:h-64 flex items-center justify-center mx-auto">
-              <div class="absolute inset-0 bg-sky-200 dark:bg-sky-800 rounded-full transition-transform duration-[4000ms] ease-in-out"
-                   [class]="(breathingState() === 'in' || breathingState() === 'hold') ? 'scale-150' : 'scale-100'"></div>
+              <div class="absolute inset-0 bg-gradient-to-br from-sky-200 to-sky-400 dark:from-sky-700 dark:to-sky-900 rounded-full transition-all ease-in-out"
+                   [style.transition-duration]="breathingPhaseDuration() + 's'"
+                   [class]="(breathingState() === 'in' || breathingState() === 'hold') ? 'scale-150 opacity-100' : 'scale-100 opacity-50'"></div>
               <div class="relative z-10">
-                <p class="text-2xl sm:text-3xl font-bold text-sky-800 dark:text-sky-100">{{ breathingInstruction() }}</p>
+                <p class="text-2xl sm:text-3xl font-bold text-sky-900 dark:text-sky-100">{{ breathingInstruction() }}</p>
                 @if (breathingState() !== 'idle') {
-                  <p class="text-6xl sm:text-7xl font-mono font-bold text-sky-600 dark:text-sky-300 mt-2">{{ breathingCountdown() }}</p>
+                  <p class="text-6xl sm:text-7xl font-mono font-bold text-sky-800 dark:text-sky-200 mt-2">{{ breathingCountdown() }}</p>
                 }
               </div>
             </div>
@@ -446,11 +455,132 @@
           </div>
         </div>
       }
+
+      <!-- THOUGHT CHALLENGER VIEW -->
+      @case ('thoughtChallenger') {
+        <div class="fixed inset-0 bg-slate-50 dark:bg-slate-900 z-50 flex flex-col p-4 sm:p-6 animate-fade-in overflow-y-auto">
+          <div class="w-full max-w-2xl mx-auto flex flex-col flex-grow my-auto">
+            
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+              <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Thought Challenger</h2>
+              <button (click)="setView('home')" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700" aria-label="Close">
+                <svg class="w-6 h-6 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+            </div>
+      
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mb-6 flex-shrink-0">
+                <div class="bg-indigo-500 h-2 rounded-full transition-all duration-300" [style.width.%]="(thoughtChallengerStep() + 1) / 8 * 100"></div>
+            </div>
+            
+            <!-- Step Content -->
+            <div class="flex-grow flex flex-col text-center">
+              @switch (thoughtChallengerStep()) {
+                @case(0) { <!-- Step 1: Situation -->
+                  <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">What was the situation?</h3>
+                  <p class="text-slate-600 dark:text-slate-400 mb-4">Briefly describe the event that triggered your feeling.</p>
+                  <textarea [ngModel]="thoughtChallengerData().situation" (ngModelChange)="setThoughtChallengerValue('situation', $event)" class="w-full h-40 p-3 border border-slate-300 rounded-md dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="e.g., A friend didn't reply to my text."></textarea>
+                }
+                @case(1) { <!-- Step 2: Emotion & Intensity -->
+                  <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">What did you feel?</h3>
+                  <p class="text-slate-600 dark:text-slate-400 mb-4">Choose the main emotion and rate its intensity from 0 (not at all) to 10 (most intense ever).</p>
+                  <div class="space-y-4 max-w-sm mx-auto w-full">
+                    <select [ngModel]="thoughtChallengerData().emotion" (ngModelChange)="setThoughtChallengerValue('emotion', $event)" class="w-full p-3 border border-slate-300 rounded-md dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+                      @for(emotion of emotions(); track emotion.name) {
+                        <option [value]="emotion.name">{{ emotion.name }}</option>
+                      }
+                    </select>
+                    <div class="flex items-center gap-4">
+                      <input type="range" min="0" max="10" [ngModel]="thoughtChallengerData().initialIntensity" (ngModelChange)="setThoughtChallengerValue('initialIntensity', +$event)" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700">
+                      <span class="font-bold text-lg w-10 text-right">{{ thoughtChallengerData().initialIntensity }}</span>
+                    </div>
+                  </div>
+                }
+                @case(2) { <!-- Step 3: Automatic Thought -->
+                  <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">What was the automatic thought?</h3>
+                  <p class="text-slate-600 dark:text-slate-400 mb-4">What was the very first thought or image that went through your mind?</p>
+                  <textarea [ngModel]="thoughtChallengerData().automaticThought" (ngModelChange)="setThoughtChallengerValue('automaticThought', $event)" class="w-full h-40 p-3 border border-slate-300 rounded-md dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="e.g., 'They must be angry at me.'"></textarea>
+                }
+                @case(3) { <!-- Step 4: Evidence For -->
+                  <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">What evidence supports this thought?</h3>
+                  <p class="text-slate-600 dark:text-slate-400 mb-4">List the facts. Be objective. Avoid interpretations or feelings.</p>
+                  <textarea [ngModel]="thoughtChallengerData().evidenceFor" (ngModelChange)="setThoughtChallengerValue('evidenceFor', $event)" class="w-full h-40 p-3 border border-slate-300 rounded-md dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="e.g., They usually reply quickly."></textarea>
+                }
+                @case(4) { <!-- Step 5: Evidence Against -->
+                  <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">What evidence contradicts this thought?</h3>
+                  <p class="text-slate-600 dark:text-slate-400 mb-4">Are there other possibilities? What would a friend say about this?</p>
+                  <textarea [ngModel]="thoughtChallengerData().evidenceAgainst" (ngModelChange)="setThoughtChallengerValue('evidenceAgainst', $event)" class="w-full h-40 p-3 border border-slate-300 rounded-md dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="e.g., They might be busy. They were kind to me yesterday."></textarea>
+                }
+                @case(5) { <!-- Step 6: Alternative Thought -->
+                  <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">What's a more balanced thought?</h3>
+                  <p class="text-slate-600 dark:text-slate-400 mb-4">Considering all the evidence, write a new, more helpful thought.</p>
+                  <textarea [ngModel]="thoughtChallengerData().alternativeThought" (ngModelChange)="setThoughtChallengerValue('alternativeThought', $event)" class="w-full h-40 p-3 border border-slate-300 rounded-md dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="e.g., 'I don't know why they haven't replied, but there could be many reasons. I'll check in later.'"></textarea>
+                }
+                @case(6) { <!-- Step 7: Re-rate Intensity -->
+                  <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">How do you feel now?</h3>
+                  <p class="text-slate-600 dark:text-slate-400 mb-4">After considering the new thought, re-rate the intensity of your initial emotion ({{ thoughtChallengerData().emotion }}).</p>
+                  <div class="space-y-4 max-w-sm mx-auto w-full">
+                    <div class="flex items-center gap-4">
+                      <input type="range" min="0" max="10" [ngModel]="thoughtChallengerData().finalIntensity" (ngModelChange)="setThoughtChallengerValue('finalIntensity', +$event)" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700">
+                      <span class="font-bold text-lg w-10 text-right">{{ thoughtChallengerData().finalIntensity }}</span>
+                    </div>
+                  </div>
+                }
+                @case(7) { <!-- Step 8: Summary -->
+                  <div class="text-left bg-slate-100 dark:bg-slate-800 p-6 rounded-lg max-h-[60vh] overflow-y-auto">
+                    <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-4 border-b border-slate-300 dark:border-slate-600 pb-2">Your Thought Record</h3>
+                    <div class="space-y-4">
+                      <div>
+                        <p class="font-semibold text-slate-600 dark:text-slate-300">Situation</p>
+                        <p class="text-slate-800 dark:text-slate-100">{{ thoughtChallengerData().situation || 'Not specified' }}</p>
+                      </div>
+                      <div>
+                        <p class="font-semibold text-slate-600 dark:text-slate-300">Automatic Thought</p>
+                        <p class="text-slate-800 dark:text-slate-100 italic">"{{ thoughtChallengerData().automaticThought || 'Not specified' }}"</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Initial feeling: {{ thoughtChallengerData().emotion }} at {{ thoughtChallengerData().initialIntensity }}/10</p>
+                      </div>
+                      <div>
+                        <p class="font-semibold text-slate-600 dark:text-slate-300">Balanced Thought</p>
+                        <p class="text-slate-800 dark:text-slate-100 italic">"{{ thoughtChallengerData().alternativeThought || 'Not specified' }}"</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Final feeling: {{ thoughtChallengerData().emotion }} at {{ thoughtChallengerData().finalIntensity }}/10</p>
+                      </div>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+            
+            <!-- Navigation -->
+            <div class="mt-8 flex justify-between items-center flex-shrink-0">
+              @if (thoughtChallengerStep() > 0 && thoughtChallengerStep() < 7) {
+                <button (click)="prevThoughtStep()" class="font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 py-2 px-4 rounded-md transition-colors">Back</button>
+              } @else {
+                <div></div> <!-- Placeholder to keep 'Next' on the right -->
+              }
+      
+              @if (thoughtChallengerStep() < 6) {
+                <button (click)="nextThoughtStep()" class="bg-indigo-500 text-white font-bold py-2 px-6 rounded-full hover:bg-indigo-600 transition-colors">Next</button>
+              }
+              @if (thoughtChallengerStep() === 6) {
+                <button (click)="nextThoughtStep()" class="bg-indigo-500 text-white font-bold py-2 px-6 rounded-full hover:bg-indigo-600 transition-colors">See Summary</button>
+              }
+              @if (thoughtChallengerStep() === 7) {
+                <div class="flex gap-4 w-full">
+                  <button (click)="saveThoughtToJournal()" class="bg-green-500 text-white font-bold py-2 px-6 rounded-full hover:bg-green-600 transition-colors w-full">Save to Journal</button>
+                  <button (click)="setView('home')" class="font-semibold text-slate-600 dark:text-slate-300 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 py-2 px-6 rounded-full transition-colors w-full">Finish</button>
+                </div>
+              }
+            </div>
+      
+          </div>
+        </div>
+      }
     }
   </main>
 
   <!-- FLOATING ACTION BUTTON -->
-  @if (currentView() !== 'breathing') {
+  @if (currentView() !== 'breathing' && currentView() !== 'thoughtChallenger') {
     <button (click)="setView('breathing')" 
             title="Guided Breathing"
             class="fixed bottom-20 right-5 z-40 bg-sky-500 text-white rounded-full p-4 shadow-lg hover:bg-sky-600 transition-colors transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900">
@@ -461,8 +591,8 @@
   }
 
   <!-- BOTTOM NAVIGATION -->
-  @if (currentView() !== 'breathing') {
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 dark:bg-slate-900 dark:border-slate-700 shadow-t-md flex justify-around">
+  @if (currentView() !== 'breathing' && currentView() !== 'thoughtChallenger') {
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm border-t border-slate-200 dark:bg-slate-900/80 dark:border-slate-700 flex justify-around">
       <button (click)="setView('home')" class="flex flex-col items-center justify-center p-3 w-full transition-colors" [class]="currentView() === 'home' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
         <span class="text-xs font-medium">Home</span>

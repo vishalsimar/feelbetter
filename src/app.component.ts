@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Emotion, JournalEntry, Step, Strategy } from './models';
+import { Emotion, JournalEntry, Step, Strategy, ThoughtChallengerRecord } from './models';
 import { EmotionService } from './emotion.service';
 import { JournalService } from './journal.service';
 import { StrategyService } from './strategy.service';
 
-type View = 'home' | 'detail' | 'finder' | 'journal' | 'trends' | 'settings' | 'breathing';
+type View = 'home' | 'detail' | 'finder' | 'journal' | 'trends' | 'settings' | 'breathing' | 'thoughtChallenger';
 type ScenarioKey = 'self' | 'friend' | 'caused';
 type CategoryKey = 'immediate' | 'shortTerm' | 'longTerm';
 
@@ -74,6 +74,7 @@ export class AppComponent {
   breathingInhaleDuration = signal(4);
   breathingHoldDuration = signal(4);
   breathingExhaleDuration = signal(6);
+  breathingPhaseDuration = signal(4); // For dynamic animation timing
   // Audio Cues
   private audioContext: AudioContext | null = null;
   audioEnabled = signal(false);
@@ -140,13 +141,33 @@ export class AppComponent {
     return [];
   });
 
-  constructor() {
-    // Initialize theme from storage or system preference.
-    // The FOUC (flash of unstyled content) is prevented by a small script in index.html <head>.
-    const storedTheme = localStorage.getItem(this.themeKey) as 'light' | 'dark' | null;
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    this.theme.set(storedTheme || (prefersDark ? 'dark' : 'light'));
+  // --- Thought Challenger State ---
+  thoughtChallengerStep = signal(0);
+  thoughtChallengerData = signal<ThoughtChallengerRecord>({
+    situation: '',
+    emotion: '',
+    initialIntensity: 5,
+    automaticThought: '',
+    evidenceFor: '',
+    evidenceAgainst: '',
+    alternativeThought: '',
+    finalIntensity: 5,
+  });
 
+  constructor() {
+    // Initialize theme from storage or, if not available, from the current DOM state
+    // which was set by the anti-FOUC script in index.html.
+    const storedTheme = localStorage.getItem(this.themeKey) as 'light' | 'dark' | null;
+    if (storedTheme) {
+      this.theme.set(storedTheme);
+    } else {
+      // Sync with the DOM state set by the FOUC script
+      const isDark = document.documentElement.classList.contains('dark');
+      this.theme.set(isDark ? 'dark' : 'light');
+    }
+
+    // This effect becomes the single source of truth for updating the DOM and localStorage
+    // based on the signal's state.
     effect(() => {
       const currentTheme = this.theme();
       if (currentTheme === 'dark') {
@@ -208,6 +229,12 @@ export class AppComponent {
 
   getEmotionColor(emotionName: string): string {
     return this.emotions().find(e => e.name === emotionName)?.color || 'bg-gray-200';
+  }
+
+  getEmotionBorderColor(emotionName: string): string {
+    const bgColor = this.getEmotionColor(emotionName);
+    // e.g. "bg-amber-300 dark:bg-amber-500" -> "border-amber-300 dark:border-amber-500"
+    return bgColor.replace(/bg-/g, 'border-');
   }
 
   // --- Theme ---
@@ -428,6 +455,7 @@ export class AppComponent {
       this.breathingState.set(phase.state);
       this.breathingInstruction.set(phase.instruction);
       this.breathingCountdown.set(phase.duration);
+      this.breathingPhaseDuration.set(phase.duration);
 
       this.breathingInterval = setInterval(() => {
         this.breathingCountdown.update(c => c - 1);
@@ -502,5 +530,67 @@ export class AppComponent {
       this.groundingToolStep.update(s => s + 1);
       this.runGroundingStep();
     }, message.duration * 1000);
+  }
+
+  // --- Thought Challenger Methods ---
+  startThoughtChallenger(): void {
+    this.thoughtChallengerStep.set(0);
+    this.thoughtChallengerData.set({
+      situation: '',
+      emotion: this.emotions()[0]?.name || '',
+      initialIntensity: 5,
+      automaticThought: '',
+      evidenceFor: '',
+      evidenceAgainst: '',
+      alternativeThought: '',
+      finalIntensity: 5,
+    });
+    this.setView('thoughtChallenger');
+  }
+
+  setThoughtChallengerValue(field: keyof ThoughtChallengerRecord, value: any): void {
+    this.thoughtChallengerData.update(data => ({ ...data, [field]: value }));
+  }
+
+  nextThoughtStep(): void {
+    if (this.thoughtChallengerStep() < 7) {
+      this.thoughtChallengerStep.update(s => s + 1);
+    }
+  }
+
+  prevThoughtStep(): void {
+    if (this.thoughtChallengerStep() > 0) {
+      this.thoughtChallengerStep.update(s => s - 1);
+    }
+  }
+
+  saveThoughtToJournal(): void {
+    const data = this.thoughtChallengerData();
+    const notes = `
+Thought Record
+--------------------
+🔹 **Situation:**
+${data.situation}
+
+🧠 **Automatic Thought:**
+"${data.automaticThought}"
+*Initial Emotion: ${data.emotion} (Intensity: ${data.initialIntensity}/10)*
+
+👍 **Evidence For:**
+${data.evidenceFor.split('\n').map(l => l.trim() ? `- ${l}` : '').filter(Boolean).join('\n') || '- (None given)'}
+
+👎 **Evidence Against:**
+${data.evidenceAgainst.split('\n').map(l => l.trim() ? `- ${l}` : '').filter(Boolean).join('\n') || '- (None given)'}
+
+✨ **Balanced Thought:**
+"${data.alternativeThought}"
+*Final Emotion: ${data.emotion} (Intensity: ${data.finalIntensity}/10)*
+    `.trim();
+
+    this.journalService.addEntry({
+      emotion: data.emotion,
+      notes: notes,
+    });
+    this.setView('journal');
   }
 }
