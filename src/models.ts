@@ -2,6 +2,7 @@ export interface Emotion {
   name: string;
   description: string;
   color: string; // Tailwind color class e.g., 'bg-blue-500' for journal, trends, etc.
+  bgTint: string; // Lighter tint for backgrounds like journal entry cards.
   homeStyle: string; // Tailwind classes for the home screen button.
   icon: string; // SVG path data
   oppositeAction?: {

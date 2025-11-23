@@ -1,5 +1,5 @@
-<div class="min-h-screen flex flex-col bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-200 transition-colors duration-300">
-  <main class="flex-grow p-4 pb-24 max-w-4xl mx-auto w-full">
+<div class="min-h-screen flex flex-col bg-slate-50/50 text-slate-700 dark:bg-slate-900/50 dark:text-slate-200">
+  <main class="flex-grow p-4 pb-24 max-w-3xl mx-auto w-full">
     <!-- Header -->
     <header class="text-center mb-10" [class.hidden]="currentView() === 'breathing' || currentView() === 'thoughtChallenger'">
       <h1 class="text-5xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Feel Better</h1>
@@ -17,7 +17,7 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               @for (emotion of emotions(); track emotion.name) {
                 <button (click)="selectEmotion(emotion)" 
-                        class="p-4 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 flex flex-col items-center justify-center"
+                        class="p-4 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 flex flex-col items-center justify-center backdrop-blur-sm"
                         [class]="emotion.homeStyle">
                   <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="emotion.icon"></path></svg>
                   <span class="font-bold text-lg">{{ emotion.name }}</span>
@@ -25,17 +25,17 @@
               }
             </div>
             <div class="grid md:grid-cols-2 gap-6">
-              <div class="text-center p-6 bg-gradient-to-br from-indigo-50 via-white to-white dark:from-indigo-900/30 dark:via-slate-800/50 dark:to-slate-900/50 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
+              <div class="text-center p-6 rounded-2xl shadow-xl bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg border border-white/50 dark:border-slate-700/50">
                 <h3 class="text-xl font-bold mb-2 text-slate-800 dark:text-slate-100">Not sure how you feel?</h3>
                 <p class="text-slate-600 dark:text-slate-400 mb-4">That's perfectly okay. Let's try to figure it out together.</p>
-                <button (click)="setView('finder')" class="bg-indigo-500 text-white font-bold py-2 px-6 rounded-full hover:bg-indigo-600 transition-colors transform hover:scale-105">
+                <button (click)="setView('finder')" class="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white font-bold py-2 px-6 rounded-full hover:shadow-lg hover:shadow-indigo-500/50 transition-shadow transform hover:scale-105">
                   Help Me Find My Feeling
                 </button>
               </div>
-              <div class="text-center p-6 bg-gradient-to-br from-purple-50 via-white to-white dark:from-purple-900/30 dark:via-slate-800/50 dark:to-slate-900/50 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
+              <div class="text-center p-6 rounded-2xl shadow-xl bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg border border-white/50 dark:border-slate-700/50">
                 <h3 class="text-xl font-bold mb-2 text-slate-800 dark:text-slate-100">Challenge a Thought</h3>
                 <p class="text-slate-600 dark:text-slate-400 mb-4">A guided process to examine and reframe unhelpful thoughts.</p>
-                <button (click)="startThoughtChallenger()" class="bg-purple-500 text-white font-bold py-2 px-6 rounded-full hover:bg-purple-600 transition-colors transform hover:scale-105">
+                <button (click)="startThoughtChallenger()" class="bg-gradient-to-br from-purple-500 to-purple-600 text-white font-bold py-2 px-6 rounded-full hover:shadow-lg hover:shadow-purple-500/50 transition-shadow transform hover:scale-105">
                   Start the Thought Challenger
                 </button>
               </div>
@@ -73,7 +73,7 @@
               </div>
             }
             
-            <div class="sticky top-0 z-10 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-sm pt-2 pb-4 transition-colors duration-300">
+            <div class="sticky top-0 z-10 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-lg pt-2 pb-4 transition-colors duration-300 -mx-4 px-4">
               <div class="flex border-b border-slate-200 dark:border-slate-700 justify-center">
                 @for (scenarioKey of ['self', 'friend', 'caused']; track scenarioKey) {
                   <button (click)="selectScenario(scenarioKey)" 
@@ -102,7 +102,7 @@
                       <h3 class="font-bold text-xl mb-4 text-slate-800 dark:text-slate-100">{{ category[1] }}</h3>
                       <div class="space-y-4" (dragover)="onDragOver($event)" (drop)="onDrop(selectedScenario(), category[0], scenario[category[0]].length)">
                         @for (strategy of scenario[category[0]]; track strategy.id; let i = $index) {
-                          <div class="bg-white dark:bg-slate-800/50 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-700/60 transition-shadow duration-200"
+                          <div class="bg-white/50 dark:bg-slate-800/50 rounded-xl shadow-lg border border-slate-200/80 dark:border-slate-700/60 transition-shadow duration-200"
                               draggable="true" 
                               (dragstart)="onDragStart(strategy, selectedScenario(), category[0], i)"
                               (dragover)="onDragOver($event)"
@@ -237,7 +237,7 @@
       @case ('journal') {
         <div>
           <h2 class="text-3xl font-bold mb-6 text-center text-slate-800 dark:text-slate-100">My Journal</h2>
-          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg mb-8 border border-slate-200/80 dark:border-slate-700/60">
+          <div class="bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg border border-white/50 dark:border-slate-700/50 p-6 rounded-2xl shadow-xl mb-8">
             <h3 class="font-bold text-xl mb-4 text-slate-800 dark:text-slate-100">New Entry</h3>
             <form (submit)="submitJournalEntry()">
               <div class="mb-4">
@@ -259,16 +259,16 @@
               </div>
               <div class="mb-4">
                 <label for="notes" class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">What's on your mind?</label>
-                <textarea id="notes" [(ngModel)]="newJournalNotes" name="notes" rows="4" class="w-full p-2 border border-slate-300 rounded-md dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="Write about your thoughts and feelings..."></textarea>
+                <textarea id="notes" [(ngModel)]="newJournalNotes" name="notes" rows="4" class="w-full p-2 border border-slate-300 rounded-md bg-white/50 dark:bg-slate-700/50 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="Write about your thoughts and feelings..."></textarea>
               </div>
-              <button type="submit" class="bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-indigo-600 transition-colors w-full">Save Entry</button>
+              <button type="submit" class="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white font-bold py-2.5 px-4 rounded-lg hover:shadow-lg hover:shadow-indigo-500/50 transition-shadow w-full">Save Entry</button>
             </form>
           </div>
 
           <h3 class="font-bold text-xl mb-4 text-center text-slate-800 dark:text-slate-100">Past Entries</h3>
           <div class="space-y-4">
             @for (entry of journalEntries(); track entry.id) {
-              <div class="bg-white dark:bg-slate-800/80 p-4 rounded-xl shadow-sm flex items-start justify-between border-l-4" [class]="getEmotionBorderColor(entry.emotion)">
+              <div class="p-5 rounded-2xl flex items-start justify-between transition-shadow" [class]="getEmotionBgTint(entry.emotion)">
                 <div class="flex-grow">
                     <div class="flex items-center mb-2">
                       <span class="font-bold px-3 py-1 rounded-full text-sm mr-3 text-slate-900 dark:text-white" [class]="getEmotionColor(entry.emotion)">{{ entry.emotion }}</span>
@@ -304,14 +304,14 @@
         <div>
           <h2 class="text-3xl font-bold mb-1 text-center text-slate-800 dark:text-slate-100">Your Emotional Trends</h2>
           <p class="text-center text-slate-600 dark:text-slate-400 mb-6 text-lg">{{ trendsData().monthName }} {{ trendsData().year }}</p>
-          <div class="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-xl shadow-lg">
+          <div class="bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg border border-white/50 dark:border-slate-700/50 p-4 sm:p-6 rounded-2xl shadow-xl">
             <div class="grid grid-cols-7 text-center font-bold text-sm text-slate-600 dark:text-slate-300 mb-2">
                 @for (day of trendsData().weekdays; track day) { <div>{{day}}</div> }
             </div>
             <div class="grid grid-cols-7 gap-1">
                 @for(day of trendsData().days; track $index) {
                     <div class="relative w-full aspect-square flex justify-center pt-1 rounded-lg"
-                         [class]="day.date ? 'bg-slate-50 dark:bg-slate-700/50' : ''">
+                         [class]="day.date ? 'bg-slate-50/50 dark:bg-slate-700/30' : ''">
 
                         @if(day.date) {
                             <span class="relative text-xs sm:text-sm font-semibold"
@@ -323,7 +323,7 @@
                         @if (day.colors.length > 0) {
                             <div class="absolute bottom-1.5 left-1.5 right-1.5 flex justify-center items-end gap-1 flex-wrap px-1">
                                 @for (color of day.colors; track $index) {
-                                    <div class="w-2 h-2 rounded-full" [class]="color"></div>
+                                    <div class="w-2 h-2 rounded-full shadow-sm" [class]="color"></div>
                                 }
                             </div>
                         }
@@ -336,7 +336,7 @@
               <div class="flex flex-wrap justify-center gap-x-4 gap-y-2">
                   @for (emotion of emotions(); track emotion.name) {
                       <div class="flex items-center">
-                          <span class="w-3.5 h-3.5 rounded-full mr-2" [class]="emotion.color"></span>
+                          <span class="w-3.5 h-3.5 rounded-full mr-2 shadow-inner" [class]="emotion.color"></span>
                           <span class="text-sm text-slate-600 dark:text-slate-300">{{ emotion.name }}</span>
                       </div>
                   }
@@ -350,26 +350,26 @@
         <div class="space-y-8">
           <h2 class="text-3xl font-bold text-center text-slate-800 dark:text-slate-100">Settings</h2>
           
-          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-200/80 dark:border-slate-700/60">
+          <div class="bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg border border-white/50 dark:border-slate-700/50 p-6 rounded-2xl shadow-xl">
             <h3 class="font-bold text-xl mb-4 text-slate-800 dark:text-slate-100">Theme</h3>
             <div class="flex gap-4">
               <button (click)="setTheme('light')" class="w-full p-3 rounded-lg text-center font-semibold border-2 transition-colors" 
-                      [class]="theme() === 'light' ? 'border-indigo-500 bg-indigo-50 dark:bg-slate-700/50' : 'border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700'">
+                      [class]="theme() === 'light' ? 'border-indigo-500 bg-indigo-50/50 dark:bg-slate-700/50' : 'border-slate-300/50 dark:border-slate-600/50 hover:bg-slate-100/50 dark:hover:bg-slate-700/50'">
                 Light
               </button>
               <button (click)="setTheme('dark')" class="w-full p-3 rounded-lg text-center font-semibold border-2 transition-colors" 
-                      [class]="theme() === 'dark' ? 'border-indigo-500 bg-indigo-50 dark:bg-slate-700/50' : 'border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700'">
+                      [class]="theme() === 'dark' ? 'border-indigo-500 bg-indigo-50/50 dark:bg-slate-700/50' : 'border-slate-300/50 dark:border-slate-600/50 hover:bg-slate-100/50 dark:hover:bg-slate-700/50'">
                 Dark
               </button>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-200/80 dark:border-slate-700/60">
+          <div class="bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg border border-white/50 dark:border-slate-700/50 p-6 rounded-2xl shadow-xl">
               <h3 class="font-bold text-xl mb-2 text-slate-800 dark:text-slate-100">Data Management</h3>
               <p class="text-slate-600 dark:text-slate-400 mb-4">
                   Your journal data is stored only on this device. You can export it as a JSON file for your records.
               </p>
-              <button (click)="exportJournal()" class="bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-indigo-600 transition-colors w-full disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed" [disabled]="journalEntries().length === 0">
+              <button (click)="exportJournal()" class="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white font-bold py-2.5 px-4 rounded-lg hover:shadow-lg hover:shadow-indigo-500/50 transition-shadow w-full disabled:from-slate-400 disabled:to-slate-500 dark:disabled:from-slate-600 dark:disabled:to-slate-700 disabled:shadow-none disabled:cursor-not-allowed" [disabled]="journalEntries().length === 0">
                   Export Journal
               </button>
               @if(journalEntries().length === 0) {
@@ -377,14 +377,14 @@
               }
           </div>
       
-          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-200/80 dark:border-slate-700/60">
+          <div class="bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg border border-white/50 dark:border-slate-700/50 p-6 rounded-2xl shadow-xl">
             <h3 class="font-bold text-xl mb-2 text-slate-800 dark:text-slate-100">Support "Feel Better"</h3>
             <p class="text-slate-600 dark:text-slate-400 mb-4">
               This app is free, ad-free, and always will be. If you find it helpful, please consider a small donation to support its maintenance and development.
             </p>
-            <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md flex items-center justify-between gap-4">
+            <div class="bg-slate-100/70 dark:bg-slate-700/70 p-4 rounded-md flex items-center justify-between gap-4">
                 <span class="font-mono text-sm sm:text-base text-slate-700 dark:text-slate-200 break-all">{{ upiId }}</span>
-                <button (click)="copyUpiId()" class="text-indigo-600 dark:text-indigo-400 font-semibold text-sm p-2 rounded-md hover:bg-indigo-100 dark:hover:bg-slate-600 transition-colors flex-shrink-0">
+                <button (click)="copyUpiId()" class="text-indigo-600 dark:text-indigo-400 font-semibold text-sm p-2 rounded-md hover:bg-indigo-100/50 dark:hover:bg-slate-600/50 transition-colors flex-shrink-0">
                   @if(upiCopied()) { <span>Copied!</span> } @else { <span>Copy</span> }
                 </button>
             </div>
@@ -393,16 +393,22 @@
       }
       <!-- GUIDED BREATHING VIEW -->
       @case ('breathing') {
-        <div class="fixed inset-0 flex flex-col items-center justify-center p-4 bg-slate-50 dark:bg-slate-900 z-50">
-          <button (click)="setView('home')" class="absolute top-4 left-4 flex items-center text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-bold">
+        <div class="fixed inset-0 flex flex-col items-center justify-center p-4 bg-slate-50/50 dark:bg-slate-900/50 backdrop-blur-sm z-50">
+          <button (click)="setView('home')" class="absolute top-4 left-4 flex items-center text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-bold z-20">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
               Back
           </button>
           <div class="text-center">
             <div class="relative w-48 h-48 sm:w-64 sm:h-64 flex items-center justify-center mx-auto">
+              <!-- Aura -->
+              <div class="absolute inset-0 bg-sky-400/50 dark:bg-sky-500/50 rounded-full transition-all ease-in-out blur-2xl"
+                   [style.transition-duration]="(breathingPhaseDuration() * 1.5) + 's'"
+                   [class]="(breathingState() === 'in' || breathingState() === 'hold') ? 'scale-125 opacity-70' : 'scale-75 opacity-20'"></div>
+              <!-- Main Circle -->
               <div class="absolute inset-0 bg-gradient-to-br from-sky-200 to-sky-400 dark:from-sky-700 dark:to-sky-900 rounded-full transition-all ease-in-out"
                    [style.transition-duration]="breathingPhaseDuration() + 's'"
-                   [class]="(breathingState() === 'in' || breathingState() === 'hold') ? 'scale-150 opacity-100' : 'scale-100 opacity-50'"></div>
+                   [class]="(breathingState() === 'in' || breathingState() === 'hold') ? 'scale-100 opacity-100' : 'scale-90 opacity-80'"></div>
+
               <div class="relative z-10">
                 <p class="text-2xl sm:text-3xl font-bold text-sky-900 dark:text-sky-100">{{ breathingInstruction() }}</p>
                 @if (breathingState() !== 'idle') {
@@ -417,24 +423,24 @@
                   <div class="flex justify-center items-center gap-4 mb-4 text-center">
                       <div>
                           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Inhale</label>
-                          <input type="number" min="1" max="10" [ngModel]="breathingInhaleDuration()" (ngModelChange)="breathingInhaleDuration.set(+$event)" class="w-16 p-2 text-center rounded-md bg-slate-200 dark:bg-slate-700 font-semibold mt-1">
+                          <input type="number" min="1" max="10" [ngModel]="breathingInhaleDuration()" (ngModelChange)="breathingInhaleDuration.set(+$event)" class="w-16 p-2 text-center rounded-md bg-slate-200/70 dark:bg-slate-700/70 font-semibold mt-1">
                       </div>
                       <div>
                           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Hold</label>
-                          <input type="number" min="0" max="10" [ngModel]="breathingHoldDuration()" (ngModelChange)="breathingHoldDuration.set(+$event)" class="w-16 p-2 text-center rounded-md bg-slate-200 dark:bg-slate-700 font-semibold mt-1">
+                          <input type="number" min="0" max="10" [ngModel]="breathingHoldDuration()" (ngModelChange)="breathingHoldDuration.set(+$event)" class="w-16 p-2 text-center rounded-md bg-slate-200/70 dark:bg-slate-700/70 font-semibold mt-1">
                       </div>
                       <div>
                           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Exhale</label>
-                          <input type="number" min="1" max="10" [ngModel]="breathingExhaleDuration()" (ngModelChange)="breathingExhaleDuration.set(+$event)" class="w-16 p-2 text-center rounded-md bg-slate-200 dark:bg-slate-700 font-semibold mt-1">
+                          <input type="number" min="1" max="10" [ngModel]="breathingExhaleDuration()" (ngModelChange)="breathingExhaleDuration.set(+$event)" class="w-16 p-2 text-center rounded-md bg-slate-200/70 dark:bg-slate-700/70 font-semibold mt-1">
                       </div>
                   </div>
                   <div class="flex justify-center gap-2">
-                      <button (click)="setBreathingPattern(4,4,6)" class="text-sm px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600">Relaxing (4-4-6)</button>
-                      <button (click)="setBreathingPattern(4,4,4)" class="text-sm px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600">Box (4-4-4)</button>
+                      <button (click)="setBreathingPattern(4,4,6)" class="text-sm px-3 py-1 rounded-full bg-slate-200/70 dark:bg-slate-700/70 hover:bg-slate-300/70 dark:hover:bg-slate-600/70">Relaxing (4-4-6)</button>
+                      <button (click)="setBreathingPattern(4,4,4)" class="text-sm px-3 py-1 rounded-full bg-slate-200/70 dark:bg-slate-700/70 hover:bg-slate-300/70 dark:hover:bg-slate-600/70">Box (4-4-4)</button>
                   </div>
-                  <div class="flex items-center justify-center gap-3 border-t border-slate-200 dark:border-slate-700 pt-4 mt-6">
+                  <div class="flex items-center justify-center gap-3 border-t border-slate-200/80 dark:border-slate-700/80 pt-4 mt-6">
                     <span class="text-sm text-slate-600 dark:text-slate-400">Audio Cues</span>
-                    <button (click)="toggleAudio()" class="p-2 rounded-full transition-colors" [class]="audioEnabled() ? 'bg-sky-200 dark:bg-sky-700' : 'bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600'">
+                    <button (click)="toggleAudio()" class="p-2 rounded-full transition-colors" [class]="audioEnabled() ? 'bg-sky-200/70 dark:bg-sky-700/70' : 'bg-slate-200/70 dark:bg-slate-700/70 hover:bg-slate-300/70 dark:hover:bg-slate-600/70'">
                       <svg class="w-6 h-6" [class]="audioEnabled() ? 'text-sky-700 dark:text-sky-200' : 'text-slate-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.858 15.858a5 5 0 01-2.828-7.072m3.536 10.606a9 9 0 012.828-12.728M12 18a6 6 0 01-6-6V6a6 6 0 1112 0v6a6 6 0 01-6 6z"></path></svg>
                     </button>
                   </div>
@@ -443,11 +449,11 @@
 
             <div class="mt-12">
               @if (breathingState() === 'idle') {
-                <button (click)="startBreathing()" class="bg-green-500 text-white font-bold py-3 px-8 rounded-full hover:bg-green-600 transition-colors text-lg">
+                <button (click)="startBreathing()" class="bg-gradient-to-br from-green-500 to-green-600 text-white font-bold py-3 px-8 rounded-full hover:shadow-lg hover:shadow-green-500/50 transition-shadow text-lg">
                   Start
                 </button>
               } @else {
-                <button (click)="stopBreathing()" class="bg-red-500 text-white font-bold py-3 px-8 rounded-full hover:bg-red-600 transition-colors text-lg">
+                <button (click)="stopBreathing()" class="bg-gradient-to-br from-red-500 to-red-600 text-white font-bold py-3 px-8 rounded-full hover:shadow-lg hover:shadow-red-500/50 transition-shadow text-lg">
                   Stop
                 </button>
               }
@@ -458,19 +464,19 @@
 
       <!-- THOUGHT CHALLENGER VIEW -->
       @case ('thoughtChallenger') {
-        <div class="fixed inset-0 bg-slate-50 dark:bg-slate-900 z-50 flex flex-col p-4 sm:p-6 animate-fade-in overflow-y-auto">
+        <div class="fixed inset-0 bg-slate-50/50 dark:bg-slate-900/50 backdrop-blur-sm z-50 flex flex-col p-4 sm:p-6 animate-fade-in overflow-y-auto">
           <div class="w-full max-w-2xl mx-auto flex flex-col flex-grow my-auto">
             
             <!-- Header -->
             <div class="flex justify-between items-center mb-4 flex-shrink-0">
               <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Thought Challenger</h2>
-              <button (click)="setView('home')" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700" aria-label="Close">
+              <button (click)="setView('home')" class="p-2 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-700/70" aria-label="Close">
                 <svg class="w-6 h-6 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
               </button>
             </div>
       
             <!-- Progress Bar -->
-            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mb-6 flex-shrink-0">
+            <div class="w-full bg-slate-200/80 dark:bg-slate-700/80 rounded-full h-2 mb-6 flex-shrink-0">
                 <div class="bg-indigo-500 h-2 rounded-full transition-all duration-300" [style.width.%]="(thoughtChallengerStep() + 1) / 8 * 100"></div>
             </div>
             
@@ -480,13 +486,13 @@
                 @case(0) { <!-- Step 1: Situation -->
                   <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">What was the situation?</h3>
                   <p class="text-slate-600 dark:text-slate-400 mb-4">Briefly describe the event that triggered your feeling.</p>
-                  <textarea [ngModel]="thoughtChallengerData().situation" (ngModelChange)="setThoughtChallengerValue('situation', $event)" class="w-full h-40 p-3 border border-slate-300 rounded-md dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="e.g., A friend didn't reply to my text."></textarea>
+                  <textarea [ngModel]="thoughtChallengerData().situation" (ngModelChange)="setThoughtChallengerValue('situation', $event)" class="w-full h-40 p-3 border border-slate-300/50 rounded-md bg-white/50 dark:bg-slate-800/50 dark:border-slate-600/50 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="e.g., A friend didn't reply to my text."></textarea>
                 }
                 @case(1) { <!-- Step 2: Emotion & Intensity -->
                   <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">What did you feel?</h3>
                   <p class="text-slate-600 dark:text-slate-400 mb-4">Choose the main emotion and rate its intensity from 0 (not at all) to 10 (most intense ever).</p>
                   <div class="space-y-4 max-w-sm mx-auto w-full">
-                    <select [ngModel]="thoughtChallengerData().emotion" (ngModelChange)="setThoughtChallengerValue('emotion', $event)" class="w-full p-3 border border-slate-300 rounded-md dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+                    <select [ngModel]="thoughtChallengerData().emotion" (ngModelChange)="setThoughtChallengerValue('emotion', $event)" class="w-full p-3 border border-slate-300/50 rounded-md bg-white/50 dark:bg-slate-800/50 dark:border-slate-600/50 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
                       @for(emotion of emotions(); track emotion.name) {
                         <option [value]="emotion.name">{{ emotion.name }}</option>
                       }
@@ -500,22 +506,22 @@
                 @case(2) { <!-- Step 3: Automatic Thought -->
                   <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">What was the automatic thought?</h3>
                   <p class="text-slate-600 dark:text-slate-400 mb-4">What was the very first thought or image that went through your mind?</p>
-                  <textarea [ngModel]="thoughtChallengerData().automaticThought" (ngModelChange)="setThoughtChallengerValue('automaticThought', $event)" class="w-full h-40 p-3 border border-slate-300 rounded-md dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="e.g., 'They must be angry at me.'"></textarea>
+                  <textarea [ngModel]="thoughtChallengerData().automaticThought" (ngModelChange)="setThoughtChallengerValue('automaticThought', $event)" class="w-full h-40 p-3 border border-slate-300/50 rounded-md bg-white/50 dark:bg-slate-800/50 dark:border-slate-600/50 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="e.g., 'They must be angry at me.'"></textarea>
                 }
                 @case(3) { <!-- Step 4: Evidence For -->
                   <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">What evidence supports this thought?</h3>
                   <p class="text-slate-600 dark:text-slate-400 mb-4">List the facts. Be objective. Avoid interpretations or feelings.</p>
-                  <textarea [ngModel]="thoughtChallengerData().evidenceFor" (ngModelChange)="setThoughtChallengerValue('evidenceFor', $event)" class="w-full h-40 p-3 border border-slate-300 rounded-md dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="e.g., They usually reply quickly."></textarea>
+                  <textarea [ngModel]="thoughtChallengerData().evidenceFor" (ngModelChange)="setThoughtChallengerValue('evidenceFor', $event)" class="w-full h-40 p-3 border border-slate-300/50 rounded-md bg-white/50 dark:bg-slate-800/50 dark:border-slate-600/50 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="e.g., They usually reply quickly."></textarea>
                 }
                 @case(4) { <!-- Step 5: Evidence Against -->
                   <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">What evidence contradicts this thought?</h3>
                   <p class="text-slate-600 dark:text-slate-400 mb-4">Are there other possibilities? What would a friend say about this?</p>
-                  <textarea [ngModel]="thoughtChallengerData().evidenceAgainst" (ngModelChange)="setThoughtChallengerValue('evidenceAgainst', $event)" class="w-full h-40 p-3 border border-slate-300 rounded-md dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="e.g., They might be busy. They were kind to me yesterday."></textarea>
+                  <textarea [ngModel]="thoughtChallengerData().evidenceAgainst" (ngModelChange)="setThoughtChallengerValue('evidenceAgainst', $event)" class="w-full h-40 p-3 border border-slate-300/50 rounded-md bg-white/50 dark:bg-slate-800/50 dark:border-slate-600/50 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="e.g., They might be busy. They were kind to me yesterday."></textarea>
                 }
                 @case(5) { <!-- Step 6: Alternative Thought -->
                   <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">What's a more balanced thought?</h3>
                   <p class="text-slate-600 dark:text-slate-400 mb-4">Considering all the evidence, write a new, more helpful thought.</p>
-                  <textarea [ngModel]="thoughtChallengerData().alternativeThought" (ngModelChange)="setThoughtChallengerValue('alternativeThought', $event)" class="w-full h-40 p-3 border border-slate-300 rounded-md dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="e.g., 'I don't know why they haven't replied, but there could be many reasons. I'll check in later.'"></textarea>
+                  <textarea [ngModel]="thoughtChallengerData().alternativeThought" (ngModelChange)="setThoughtChallengerValue('alternativeThought', $event)" class="w-full h-40 p-3 border border-slate-300/50 rounded-md bg-white/50 dark:bg-slate-800/50 dark:border-slate-600/50 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="e.g., 'I don't know why they haven't replied, but there could be many reasons. I'll check in later.'"></textarea>
                 }
                 @case(6) { <!-- Step 7: Re-rate Intensity -->
                   <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">How do you feel now?</h3>
@@ -528,7 +534,7 @@
                   </div>
                 }
                 @case(7) { <!-- Step 8: Summary -->
-                  <div class="text-left bg-slate-100 dark:bg-slate-800 p-6 rounded-lg max-h-[60vh] overflow-y-auto">
+                  <div class="text-left bg-slate-100/70 dark:bg-slate-800/70 p-6 rounded-lg max-h-[60vh] overflow-y-auto">
                     <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-4 border-b border-slate-300 dark:border-slate-600 pb-2">Your Thought Record</h3>
                     <div class="space-y-4">
                       <div>
@@ -568,7 +574,7 @@
               @if (thoughtChallengerStep() === 7) {
                 <div class="flex gap-4 w-full">
                   <button (click)="saveThoughtToJournal()" class="bg-green-500 text-white font-bold py-2 px-6 rounded-full hover:bg-green-600 transition-colors w-full">Save to Journal</button>
-                  <button (click)="setView('home')" class="font-semibold text-slate-600 dark:text-slate-300 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 py-2 px-6 rounded-full transition-colors w-full">Finish</button>
+                  <button (click)="setView('home')" class="font-semibold text-slate-600 dark:text-slate-300 bg-slate-200/70 dark:bg-slate-700/70 hover:bg-slate-300/70 dark:hover:bg-slate-600/70 py-2 px-6 rounded-full transition-colors w-full">Finish</button>
                 </div>
               }
             </div>
@@ -592,20 +598,20 @@
 
   <!-- BOTTOM NAVIGATION -->
   @if (currentView() !== 'breathing' && currentView() !== 'thoughtChallenger') {
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm border-t border-slate-200 dark:bg-slate-900/80 dark:border-slate-700 flex justify-around">
-      <button (click)="setView('home')" class="flex flex-col items-center justify-center p-3 w-full transition-colors" [class]="currentView() === 'home' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'">
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/60 backdrop-blur-lg border-t border-slate-200/80 dark:bg-slate-900/60 dark:border-slate-700/80 flex justify-around">
+      <button (click)="setView('home')" class="flex flex-col items-center justify-center p-3 w-full transition-colors" [class]="currentView() === 'home' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
         <span class="text-xs font-medium">Home</span>
       </button>
-      <button (click)="setView('journal')" class="flex flex-col items-center justify-center p-3 w-full transition-colors" [class]="currentView() === 'journal' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'">
+      <button (click)="setView('journal')" class="flex flex-col items-center justify-center p-3 w-full transition-colors" [class]="currentView() === 'journal' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
         <span class="text-xs font-medium">Journal</span>
       </button>
-      <button (click)="setView('trends')" class="flex flex-col items-center justify-center p-3 w-full transition-colors" [class]="currentView() === 'trends' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'">
+      <button (click)="setView('trends')" class="flex flex-col items-center justify-center p-3 w-full transition-colors" [class]="currentView() === 'trends' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
         <span class="text-xs font-medium">Trends</span>
       </button>
-      <button (click)="setView('settings')" class="flex flex-col items-center justify-center p-3 w-full transition-colors" [class]="currentView() === 'settings' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'">
+      <button (click)="setView('settings')" class="flex flex-col items-center justify-center p-3 w-full transition-colors" [class]="currentView() === 'settings' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0 3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
         <span class="text-xs font-medium">Settings</span>
       </button>

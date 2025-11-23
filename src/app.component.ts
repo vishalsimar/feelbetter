@@ -231,6 +231,10 @@ export class AppComponent {
     return this.emotions().find(e => e.name === emotionName)?.color || 'bg-gray-200';
   }
 
+  getEmotionBgTint(emotionName: string): string {
+    return this.emotions().find(e => e.name === emotionName)?.bgTint || 'bg-gray-100/50 dark:bg-gray-800/20';
+  }
+
   getEmotionBorderColor(emotionName: string): string {
     const bgColor = this.getEmotionColor(emotionName);
     // e.g. "bg-amber-300 dark:bg-amber-500" -> "border-amber-300 dark:border-amber-500"
