@@ -38,6 +38,7 @@ export interface Strategy {
   id: string;
   title: string;
   steps: Step[];
+  toolId?: 'grounding';
 }
 
 export interface StrategyCategory {

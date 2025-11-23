@@ -66,7 +66,7 @@ export class AppComponent {
   // Drag and drop state
   private draggedStrategy: { strategy: Strategy, from: { scenario: ScenarioKey, category: CategoryKey, index: number } } | null = null;
 
-  // Breathing exercise state
+  // --- Breathing exercise state ---
   breathingState = signal<'idle' | 'in' | 'hold' | 'out'>('idle');
   breathingInstruction = signal('Breathe');
   breathingCountdown = signal(0);
@@ -74,6 +74,21 @@ export class AppComponent {
   breathingInhaleDuration = signal(4);
   breathingHoldDuration = signal(4);
   breathingExhaleDuration = signal(6);
+  // Audio Cues
+  private audioContext: AudioContext | null = null;
+  audioEnabled = signal(false);
+
+  // --- Mini Tools ---
+  activeTool = signal<'none' | 'grounding'>('none');
+  groundingToolStep = signal(0);
+  readonly groundingToolMessages = [
+    { title: 'See', instruction: 'Acknowledge 5 things you can see around you.', duration: 15 },
+    { title: 'Feel', instruction: 'Acknowledge 4 things you can feel.', duration: 10 },
+    { title: 'Hear', instruction: 'Acknowledge 3 things you can hear.', duration: 10 },
+    { title: 'Smell', instruction: 'Acknowledge 2 things you can smell.', duration: 8 },
+    { title: 'Taste', instruction: 'Acknowledge 1 thing you can taste.', duration: 5 }
+  ];
+  private toolTimeout: any;
 
   // Trends data
   trendsData = computed(() => {
@@ -380,6 +395,7 @@ export class AppComponent {
 
   startBreathing(): void {
     if (this.breathingState() !== 'idle') return;
+    this.initAudio(); // Ensure audio context is ready on user gesture
     this.breathingState.set('in');
     this.runBreathingCycle();
   }
@@ -394,9 +410,9 @@ export class AppComponent {
 
   private runBreathingCycle(): void {
     const cycle = [
-      { state: 'in', instruction: 'Breathe In', duration: this.breathingInhaleDuration() },
-      { state: 'hold', instruction: 'Hold', duration: this.breathingHoldDuration() },
-      { state: 'out', instruction: 'Breathe Out', duration: this.breathingExhaleDuration() },
+      { state: 'in', instruction: 'Breathe In', duration: this.breathingInhaleDuration(), tone: 600 },
+      { state: 'hold', instruction: 'Hold', duration: this.breathingHoldDuration(), tone: 800 },
+      { state: 'out', instruction: 'Breathe Out', duration: this.breathingExhaleDuration(), tone: 400 },
     ] as const;
 
     let currentPhase = -1;
@@ -408,6 +424,7 @@ export class AppComponent {
 
       currentPhase = (currentPhase + 1) % cycle.length;
       const phase = cycle[currentPhase];
+      this.playTone(phase.tone, 0.2);
       this.breathingState.set(phase.state);
       this.breathingInstruction.set(phase.instruction);
       this.breathingCountdown.set(phase.duration);
@@ -422,5 +439,68 @@ export class AppComponent {
     };
 
     nextPhase();
+  }
+
+  // --- Audio Cues ---
+  private initAudio(): void {
+    if (!this.audioContext) {
+      // Use casting to handle vendor prefixes for older browsers
+      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+  }
+
+  toggleAudio(): void {
+    this.audioEnabled.update(enabled => !enabled);
+    if (this.audioEnabled()) {
+      this.initAudio();
+      // Play a small confirmation sound on enable
+      this.playTone(440, 0.1); 
+    }
+  }
+
+  private playTone(frequency: number, duration: number): void {
+    if (!this.audioContext || !this.audioEnabled()) return;
+
+    const oscillator = this.audioContext.createOscillator();
+    const gainNode = this.audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(this.audioContext.destination);
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+    gainNode.gain.setValueAtTime(0.001, this.audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.3, this.audioContext.currentTime + 0.05);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
+
+    oscillator.start(this.audioContext.currentTime);
+    oscillator.stop(this.audioContext.currentTime + duration);
+  }
+
+  // --- Mini-Tools ---
+  startTool(toolId: 'grounding'): void {
+    if (toolId === 'grounding') {
+        this.activeTool.set('grounding');
+        this.groundingToolStep.set(0);
+        this.runGroundingStep();
+    }
+  }
+
+  stopTool(): void {
+    clearTimeout(this.toolTimeout);
+    this.activeTool.set('none');
+  }
+  
+  private runGroundingStep(): void {
+    const step = this.groundingToolStep();
+    if (step >= this.groundingToolMessages.length) {
+      // Keep the "Complete" message on screen until user closes.
+      return;
+    }
+    const message = this.groundingToolMessages[step];
+    this.toolTimeout = setTimeout(() => {
+      this.groundingToolStep.update(s => s + 1);
+      this.runGroundingStep();
+    }, message.duration * 1000);
   }
 }

@@ -9,7 +9,7 @@ export class StrategyService {
     private emotionService = inject(EmotionService);
     private readonly storageKey = 'feel-better-strategies';
 
-    private strategyDetailsMap = new Map<string, { title: string; steps: string[] }>([
+    private strategyDetailsMap = new Map<string, { title: string; steps: string[]; toolId?: 'grounding' }>([
         // --- Joy ---
         // Self
         ['Share your feeling with someone.', { title: 'Share Your Joy', steps: ['Think of someone who will be happy for you.', 'Reach out via text, call, or in person.', 'Share what happened and how you feel.'] }],
@@ -109,7 +109,7 @@ export class StrategyService {
         // --- Fear ---
         // Self
         ['Focus on your breathing; inhale for 4, hold for 4, exhale for 6.', { title: 'Controlled Breathing', steps: ['Inhale slowly through your nose for a count of 4.', 'Gently hold your breath for a count of 4.', 'Exhale slowly and completely through your mouth for a count of 6.', 'Repeat 5-10 times. A longer exhale calms the nervous system.'] }],
-        ['Ground yourself: name 5 things you see, 4 you feel, 3 you hear.', { title: '5-4-3-2-1 Grounding', steps: ['Look around and name 5 things you can SEE.', 'Acknowledge 4 things you can physically FEEL (e.g., your feet on the floor).', 'Listen and identify 3 things you can HEAR.', 'Identify 2 things you can SMELL.', 'Name 1 thing you can TASTE.'] }],
+        ['Ground yourself: name 5 things you see, 4 you feel, 3 you hear.', { title: '5-4-3-2-1 Grounding', steps: ['Look around and name 5 things you can SEE.', 'Acknowledge 4 things you can physically FEEL (e.g., your feet on the floor).', 'Listen and identify 3 things you can HEAR.', 'Identify 2 things you can SMELL.', 'Name 1 thing you can TASTE.'], toolId: 'grounding' }],
         ['Hold a piece of ice.', { title: 'Intense Sensation', steps: ['Safely get a piece of ice from the freezer.', 'Hold it in the palm of your hand.', 'Focus all your attention on the intense cold sensation.', 'This strong physical feeling can interrupt an overwhelming emotion.'] }],
         ['Talk about your fear with someone you trust.', { title: 'Voice Your Fear', steps: ['Think of someone who makes you feel safe.', 'Reach out and tell them you are feeling scared.', 'Putting the fear into words can make it feel more manageable.'] }],
         ['Write down what you are afraid of and why.', { title: 'Write It Out', steps: ['Be specific about the fear.', 'Explore the "what if" scenarios that are running through your mind.', 'Seeing it on paper can sometimes make it seem less powerful.'] }],
@@ -292,6 +292,7 @@ export class StrategyService {
         
         let title = text;
         let steps: Step[];
+        let toolId: 'grounding' | undefined = undefined;
 
         if (details) {
             title = details.title;
@@ -299,6 +300,7 @@ export class StrategyService {
                 id: crypto.randomUUID(),
                 text: stepText
             }));
+            toolId = details.toolId;
         } else {
             // Fallback for any strategy not in the map, though all defaults should now be covered.
             console.warn(`Strategy not found in map: "${text}". Using default steps.`);
@@ -308,7 +310,8 @@ export class StrategyService {
         return {
             id: crypto.randomUUID(),
             title: title,
-            steps: steps
+            steps: steps,
+            toolId: toolId
         };
     }
 
