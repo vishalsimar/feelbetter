@@ -1,7 +1,7 @@
 import { APP_INITIALIZER, Provider } from '@angular/core';
 
 // Increment this version string whenever you make a breaking change to the data structures stored in localStorage.
-const STORAGE_VERSION = '3.1';
+const STORAGE_VERSION = '3.2';
 
 /**
  * This function runs before the Angular app initializes.
