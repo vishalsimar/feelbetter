@@ -1,6 +1,6 @@
 
 
-import { Injectable, signal, effect, inject } from '@angular/core';
+import { Injectable, signal, effect, inject, WritableSignal } from '@angular/core';
 import { Strategy, Step, UserEmotionStrategies } from './models';
 import { EmotionService } from './emotion.service';
 
@@ -267,9 +267,10 @@ export class StrategyService {
         ['Cherish the role you play in making someone feel safe.', { title: 'Cherish Your Role', steps: ['Recognize that making someone feel safe is a profound gift.', 'It\'s one of the most important roles we can play in each other\'s lives.', 'Value this and take it seriously.'] }],
     ]);
 
-    readonly strategies = signal<UserEmotionStrategies>(this.loadFromStorage());
+    readonly strategies: WritableSignal<UserEmotionStrategies>;
 
     constructor() {
+        this.strategies = signal<UserEmotionStrategies>(this.loadFromStorage());
         effect(() => {
             this.saveToStorage(this.strategies());
         });

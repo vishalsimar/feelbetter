@@ -37,6 +37,7 @@ export class JournalService {
       id: crypto.randomUUID(),
       date: new Date().toISOString(),
     };
+    
     this.journal.update(entries => [newEntry, ...entries]);
   }
 

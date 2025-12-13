@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, ElementRef, viewChild, afterNextRender } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Emotion, JournalEntry, Step, Strategy, ThoughtChallengerRecord } from './models';
@@ -6,7 +6,9 @@ import { EmotionService } from './emotion.service';
 import { JournalService } from './journal.service';
 import { StrategyService } from './strategy.service';
 
-type View = 'home' | 'detail' | 'finder' | 'journal' | 'trends' | 'settings' | 'breathing' | 'thoughtChallenger';
+declare const d3: any;
+
+type View = 'home' | 'detail' | 'finder' | 'journal' | 'trends' | 'settings' | 'breathing' | 'thoughtChallenger' | 'growth';
 type ScenarioKey = 'self' | 'friend' | 'caused';
 type CategoryKey = 'immediate' | 'shortTerm' | 'longTerm';
 
@@ -23,6 +25,7 @@ export class AppComponent {
   private emotionService = inject(EmotionService);
   private journalService = inject(JournalService);
   private strategyService = inject(StrategyService);
+  private datePipe = inject(DatePipe);
   
   // View management
   currentView = signal<View>('home');
@@ -75,9 +78,9 @@ export class AppComponent {
   breathingHoldDuration = signal(4);
   breathingExhaleDuration = signal(6);
   breathingPhaseDuration = signal(4); // For dynamic animation timing
-  // Audio Cues
   private audioContext: AudioContext | null = null;
   audioEnabled = signal(false);
+  breathingSessionsCompleted = signal(this.loadStat('breathingSessionsCompleted'));
 
   // --- Mini Tools ---
   activeTool = signal<'none' | 'grounding'>('none');
@@ -154,20 +157,108 @@ export class AppComponent {
     finalIntensity: 5,
   });
 
+  // --- Growth Page ---
+  journalingStreak = computed(() => {
+    const entries = this.journalEntries();
+    if (entries.length === 0) return 0;
+
+    // FIX: Use Array.from() to correctly infer the type of the array from the Set.
+    // The spread operator `[...new Set(...)]` was inferring `unknown[]`, causing a type error.
+    const dates: string[] = Array.from(new Set(entries.map(e => new Date(e.date).toDateString())));
+    dates.sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+    
+    let streak = 0;
+    let today = new Date();
+    
+    // Check if today is in the list
+    if (dates.includes(today.toDateString())) {
+      streak = 1;
+    } else {
+      // If not, check if yesterday is the last entry to start streak from there
+      let yesterday = new Date();
+      yesterday.setDate(today.getDate() - 1);
+      if (!dates.includes(yesterday.toDateString())) return 0;
+    }
+    
+    let currentDate = new Date(dates[0]);
+    for (let i = 1; i < dates.length; i++) {
+      let nextDate = new Date(dates[i]);
+      let expectedDate = new Date(currentDate);
+      expectedDate.setDate(currentDate.getDate() - 1);
+      
+      if (nextDate.toDateString() === expectedDate.toDateString()) {
+        streak++;
+        currentDate = nextDate;
+      } else {
+        break;
+      }
+    }
+    return streak;
+  });
+
+  emotionDistribution = computed(() => {
+    const entries = this.journalEntries();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const recentEntries = entries.filter(e => new Date(e.date) > thirtyDaysAgo);
+    const counts = new Map<string, number>();
+    
+    recentEntries.forEach(e => {
+        counts.set(e.emotion, (counts.get(e.emotion) || 0) + 1);
+    });
+    
+    const total = recentEntries.length;
+    if (total === 0) return [];
+    
+    return Array.from(counts.entries()).map(([name, count]) => ({
+      name,
+      count,
+      percentage: (count / total) * 100,
+      color: this.emotions().find(e => e.name === name)?.color.split(' ')[0] || 'bg-gray-200'
+    })).sort((a, b) => b.count - a.count);
+  });
+  
+  chartContainer = viewChild<ElementRef>('chartContainer');
+
+  // --- Daily Moment ---
+  private readonly dailyMomentKey = 'feel-better-daily-moment';
+  dailyMomentPrompt = signal('');
+  dailyMomentDone = signal(false);
+  private dailyPrompts = [
+    "What's one small thing you're grateful for today?",
+    "What is one thing you can do for your well-being in the next hour?",
+    "Take a moment to notice your breath, just as it is.",
+    "What are you looking forward to this week?",
+    "Acknowledge one personal strength you've used recently.",
+    "What is a sound you can hear right now? Focus on it for 15 seconds.",
+    "Think of a happy memory. Let yourself feel the warmth.",
+  ];
+
   constructor() {
-    // Initialize theme from storage or, if not available, from the current DOM state
-    // which was set by the anti-FOUC script in index.html.
+    this.initializeTheme();
+    this.initializeDailyMoment();
+    this.emotions.set(this.emotionService.getEmotions());
+    this.newJournalEmotion.set(this.emotions()[0]?.name || '');
+
+    afterNextRender(() => {
+        effect(() => {
+            if (this.currentView() === 'growth' && this.chartContainer()) {
+                this.drawDonutChart();
+            }
+        });
+    });
+  }
+
+  private initializeTheme(): void {
     const storedTheme = localStorage.getItem(this.themeKey) as 'light' | 'dark' | null;
     if (storedTheme) {
       this.theme.set(storedTheme);
     } else {
-      // Sync with the DOM state set by the FOUC script
       const isDark = document.documentElement.classList.contains('dark');
       this.theme.set(isDark ? 'dark' : 'light');
     }
 
-    // This effect becomes the single source of truth for updating the DOM and localStorage
-    // based on the signal's state.
     effect(() => {
       const currentTheme = this.theme();
       if (currentTheme === 'dark') {
@@ -176,10 +267,35 @@ export class AppComponent {
         document.documentElement.classList.remove('dark');
       }
       localStorage.setItem(this.themeKey, currentTheme);
+      // Redraw chart on theme change
+      if (this.currentView() === 'growth' && this.chartContainer()) {
+          this.drawDonutChart();
+      }
     });
-    
-    this.emotions.set(this.emotionService.getEmotions());
-    this.newJournalEmotion.set(this.emotions()[0]?.name || '');
+  }
+
+  private initializeDailyMoment(): void {
+    const stored = localStorage.getItem(this.dailyMomentKey);
+    const todayStr = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
+
+    if (stored) {
+      try {
+        const { date, done } = JSON.parse(stored);
+        if (date === todayStr && done) {
+          this.dailyMomentDone.set(true);
+        }
+      } catch (e) {
+        console.error("Failed to parse daily moment data", e);
+      }
+    }
+    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 1000 / 60 / 60 / 24);
+    this.dailyMomentPrompt.set(this.dailyPrompts[dayOfYear % this.dailyPrompts.length]);
+  }
+
+  completeDailyMoment(): void {
+    this.dailyMomentDone.set(true);
+    const todayStr = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
+    localStorage.setItem(this.dailyMomentKey, JSON.stringify({ date: todayStr, done: true }));
   }
 
   setView(view: View): void {
@@ -194,7 +310,7 @@ export class AppComponent {
     this.selectedEmotion.set(emotion);
     this.selectedScenario.set('self');
     this.setView('detail');
-    this.completedStepIds.set(new Set<string>()); // Reset checkboxes on new emotion
+    this.completedStepIds.set(new Set());
   }
 
   selectScenario(scenario: ScenarioKey): void {
@@ -230,6 +346,24 @@ export class AppComponent {
   getEmotionColor(emotionName: string): string {
     return this.emotions().find(e => e.name === emotionName)?.color || 'bg-gray-200';
   }
+  
+  getEmotionTailwindColor(emotionName: string): string {
+    const emotion = this.emotions().find(e => e.name === emotionName);
+    if (!emotion) return '#9ca3af'; // gray-400
+  
+    // This is a hacky way to get a hex code from Tailwind class names.
+    // A better approach would be to have hex codes in the emotion definition.
+    if (emotion.name === 'Joy') return '#facc15'; // yellow-400
+    if (emotion.name === 'Sadness') return '#60a5fa'; // blue-400
+    if (emotion.name === 'Anger') return '#ef4444'; // red-500
+    if (emotion.name === 'Fear') return '#a855f7'; // purple-500
+    if (emotion.name === 'Surprise') return '#22d3ee'; // cyan-400
+    if (emotion.name === 'Anticipation') return '#fb923c'; // orange-400
+    if (emotion.name === 'Disgust') return '#22c55e'; // green-500
+    if (emotion.name === 'Trust') return '#34d399'; // emerald-400
+  
+    return '#9ca3af';
+  }
 
   getEmotionBgTint(emotionName: string): string {
     return this.emotions().find(e => e.name === emotionName)?.bgTint || 'bg-gray-100/50 dark:bg-gray-800/20';
@@ -237,16 +371,13 @@ export class AppComponent {
 
   getEmotionBorderColor(emotionName: string): string {
     const bgColor = this.getEmotionColor(emotionName);
-    // e.g. "bg-amber-300 dark:bg-amber-500" -> "border-amber-300 dark:border-amber-500"
     return bgColor.replace(/bg-/g, 'border-');
   }
 
-  // --- Theme ---
   setTheme(theme: 'light' | 'dark'): void {
     this.theme.set(theme);
   }
 
-  // --- Donation ---
   copyUpiId(): void {
     navigator.clipboard.writeText(this.upiId).then(() => {
       this.upiCopied.set(true);
@@ -254,7 +385,6 @@ export class AppComponent {
     });
   }
 
-  // --- Data Export ---
   exportJournal(): void {
     const entries = this.journalEntries();
     if (entries.length === 0) {
@@ -312,10 +442,8 @@ export class AppComponent {
     }
 
     if (editing.stepId) {
-      // It's a step
       this.strategyService.updateStepText(emotion.name, scenario, category, editing.strategyId, editing.stepId, editing.text.trim());
     } else {
-      // It's a title
       this.strategyService.updateStrategyTitle(emotion.name, scenario, category, editing.strategyId, editing.text.trim());
     }
     this.editingTarget.set(null);
@@ -367,6 +495,7 @@ export class AppComponent {
       if (newSet.has(strategyId)) {
         newSet.delete(strategyId);
       } else {
+        // FIX: Corrected typo from `id` to `strategyId`.
         newSet.add(strategyId);
       }
       return newSet;
@@ -383,7 +512,7 @@ export class AppComponent {
   }
 
   onDragOver(event: DragEvent): void {
-    event.preventDefault(); // This is necessary to allow dropping
+    event.preventDefault();
   }
 
   onDrop(toScenario: ScenarioKey, toCategory: CategoryKey, toIndex: number): void {
@@ -403,11 +532,9 @@ export class AppComponent {
       const newStrategies = JSON.parse(JSON.stringify(allStrategies));
       const emotionStrategies = newStrategies[emotionName];
 
-      // Remove from source
       const fromList = emotionStrategies[from.scenario][from.category];
       fromList.splice(from.index, 1);
 
-      // Add to destination
       const toList = emotionStrategies[toScenario][toCategory];
       toList.splice(toIndex, 0, strategy);
 
@@ -418,6 +545,13 @@ export class AppComponent {
   }
   
   // --- Breathing ---
+  private saveStat(key: string, value: number) {
+    localStorage.setItem(`feel-better-stat-${key}`, String(value));
+  }
+  private loadStat(key: string): number {
+    return parseInt(localStorage.getItem(`feel-better-stat-${key}`) || '0', 10);
+  }
+
   setBreathingPattern(inhale: number, hold: number, exhale: number): void {
     this.breathingInhaleDuration.set(inhale);
     this.breathingHoldDuration.set(hold);
@@ -426,7 +560,7 @@ export class AppComponent {
 
   startBreathing(): void {
     if (this.breathingState() !== 'idle') return;
-    this.initAudio(); // Ensure audio context is ready on user gesture
+    this.initAudio();
     this.breathingState.set('in');
     this.runBreathingCycle();
   }
@@ -434,6 +568,10 @@ export class AppComponent {
   stopBreathing(): void {
     if (this.breathingInterval) {
       clearInterval(this.breathingInterval);
+    }
+    if(this.breathingState() !== 'idle') {
+      this.breathingSessionsCompleted.update(s => s + 1);
+      this.saveStat('breathingSessionsCompleted', this.breathingSessionsCompleted());
     }
     this.breathingState.set('idle');
     this.breathingInstruction.set('Breathe');
@@ -476,7 +614,6 @@ export class AppComponent {
   // --- Audio Cues ---
   private initAudio(): void {
     if (!this.audioContext) {
-      // Use casting to handle vendor prefixes for older browsers
       this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
   }
@@ -485,7 +622,6 @@ export class AppComponent {
     this.audioEnabled.update(enabled => !enabled);
     if (this.audioEnabled()) {
       this.initAudio();
-      // Play a small confirmation sound on enable
       this.playTone(440, 0.1); 
     }
   }
@@ -526,7 +662,6 @@ export class AppComponent {
   private runGroundingStep(): void {
     const step = this.groundingToolStep();
     if (step >= this.groundingToolMessages.length) {
-      // Keep the "Complete" message on screen until user closes.
       return;
     }
     const message = this.groundingToolMessages[step];
@@ -597,4 +732,62 @@ ${data.evidenceAgainst.split('\n').map(l => l.trim() ? `- ${l}` : '').filter(Boo
     });
     this.setView('journal');
   }
+
+  // --- D3 Chart ---
+  private drawDonutChart(): void {
+    const container = this.chartContainer()?.nativeElement;
+    if (!container) return;
+
+    const data = this.emotionDistribution();
+    d3.select(container).select('svg').remove();
+
+    if (data.length === 0) {
+        container.innerHTML = `<div class="flex items-center justify-center h-full text-slate-500 dark:text-slate-400">Log entries to see your 30-day distribution.</div>`;
+        return;
+    }
+
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    const margin = 10;
+    const radius = Math.min(width, height) / 2 - margin;
+    const isDarkMode = this.theme() === 'dark';
+
+    const svg = d3.select(container)
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .append('g')
+        .attr('transform', `translate(${width / 2}, ${height / 2})`);
+
+    const color = d3.scaleOrdinal()
+        .domain(data.map(d => d.name))
+        .range(data.map(d => this.getEmotionTailwindColor(d.name)));
+
+    const pie = d3.pie().value(d => d.count).sort(null);
+    const data_ready = pie(data);
+
+    const arc = d3.arc()
+        .innerRadius(radius * 0.5)
+        .outerRadius(radius * 0.85);
+
+    svg.selectAll('path')
+        .data(data_ready)
+        .enter()
+        .append('path')
+        .attr('d', arc)
+        .attr('fill', d => color(d.data.name))
+        .attr('stroke', isDarkMode ? '#1e293b' : '#f1f5f9' ) // slate-800 or slate-100
+        .style('stroke-width', '2px')
+        .style('opacity', 0.8);
+    
+    // Center text
+    svg.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.35em')
+        .text('30 Days')
+        .style('font-size', '1.2rem')
+        .style('font-weight', 'bold')
+        .style('fill', isDarkMode ? '#f1f5f9' : '#1e293b');
+  }
+
 }

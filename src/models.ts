@@ -67,3 +67,13 @@ export interface ThoughtChallengerRecord {
   alternativeThought: string;
   finalIntensity: number;
 }
+
+// FIX: Add the missing JournalEntryInsight interface required by GeminiService.
+export interface JournalEntryInsight {
+  summary: string;
+  theme: string;
+  suggestedStrategy: {
+    title: string;
+    emotion: string;
+  };
+}
