@@ -423,6 +423,42 @@
           </div>
 
           <div class="bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg border border-white/50 dark:border-slate-700/50 p-6 rounded-2xl shadow-xl">
+            <h3 class="font-bold text-xl mb-2 text-slate-800 dark:text-slate-100">Emotion Colors</h3>
+            <p class="text-slate-600 dark:text-slate-400 mb-6">
+                Customize the color associated with each emotion throughout the app.
+            </p>
+            <div class="space-y-6">
+                @for (emotion of emotions(); track emotion.name) {
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                        <div class="flex items-center mb-3 sm:mb-0">
+                            <span class="w-4 h-4 rounded-full mr-3 shrink-0" [class]="emotion.color"></span>
+                            <span class="font-semibold text-slate-800 dark:text-slate-100">{{ emotion.name }}</span>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap justify-start sm:justify-end">
+                            @for (color of availableColors; track color) {
+                                <button (click)="updateEmotionColor(emotion.name, color)"
+                                        [title]="color"
+                                        class="w-7 h-7 rounded-full transition-transform transform hover:scale-110 focus:outline-none border-2 border-transparent"
+                                        [class]="'bg-' + color + '-500'"
+                                        [class.ring-2]="getCurrentEmotionColor(emotion.name) === color"
+                                        [class.ring-offset-2]="getCurrentEmotionColor(emotion.name) === color"
+                                        [class.ring-indigo-500]="getCurrentEmotionColor(emotion.name) === color"
+                                        [class.dark:ring-offset-slate-800]="getCurrentEmotionColor(emotion.name) === color">
+                                </button>
+                            }
+                            <button (click)="resetEmotionColor(emotion.name)"
+                                    [disabled]="isEmotionColorDefault(emotion.name)"
+                                    class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    title="Reset to default">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+          </div>
+
+          <div class="bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg border border-white/50 dark:border-slate-700/50 p-6 rounded-2xl shadow-xl">
               <h3 class="font-bold text-xl mb-2 text-slate-800 dark:text-slate-100">Data Management</h3>
               <p class="text-slate-600 dark:text-slate-400 mb-4">
                   Your journal data is stored only on this device. You can export it as a JSON file for your records.

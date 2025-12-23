@@ -3,7 +3,30 @@ import { Emotion } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class EmotionService {
-  private emotions: Emotion[] = [
+  private readonly colorStorageKey = 'feel-better-emotion-colors';
+  private customColors: { [key: string]: string };
+
+  // A map to easily get the default color name for each emotion.
+  private readonly defaultColorMap: { [key: string]: string } = {
+    'Joy': 'yellow',
+    'Sadness': 'blue',
+    'Anger': 'red',
+    'Fear': 'purple',
+    'Surprise': 'cyan',
+    'Anticipation': 'orange',
+    'Disgust': 'green',
+    'Trust': 'emerald',
+  };
+  
+  // The list of available colors for customization.
+  public readonly availableColors = [
+    'slate', 'gray', 'zinc', // Neutral
+    'red', 'orange', 'amber', 'yellow', 'lime', 'green', // Warm
+    'emerald', 'teal', 'cyan', 'sky', 'blue', 'indigo', // Cool
+    'violet', 'purple', 'fuchsia', 'pink', 'rose' // Pinks/Purples
+  ];
+  
+  private baseEmotions: Emotion[] = [
     {
       name: 'Joy',
       description: 'A feeling of great pleasure and happiness.',
@@ -242,11 +265,74 @@ export class EmotionService {
     },
   ];
 
+  constructor() {
+    this.customColors = this.loadCustomColors();
+  }
+
+  private loadCustomColors(): { [key: string]: string } {
+    try {
+      const stored = localStorage.getItem(this.colorStorageKey);
+      return stored ? JSON.parse(stored) : {};
+    } catch (e) {
+      console.error('Error loading custom colors from localStorage', e);
+      return {};
+    }
+  }
+
+  private saveCustomColors(): void {
+    try {
+      localStorage.setItem(this.colorStorageKey, JSON.stringify(this.customColors));
+    } catch (e) {
+      console.error('Error saving custom colors to localStorage', e);
+    }
+  }
+
+  setEmotionColor(emotionName: string, colorName: string): void {
+    this.customColors[emotionName] = colorName;
+    this.saveCustomColors();
+  }
+
+  resetEmotionColor(emotionName: string): void {
+    delete this.customColors[emotionName];
+    this.saveCustomColors();
+  }
+
+  getCurrentColorNameForEmotion(emotionName: string): string {
+    return this.customColors[emotionName] || this.defaultColorMap[emotionName];
+  }
+
+  getDefaultColorName(emotionName: string): string {
+    return this.defaultColorMap[emotionName];
+  }
+  
   getEmotions(): Emotion[] {
-    return this.emotions;
+    return this.baseEmotions.map(emotion => {
+      const colorName = this.getCurrentColorNameForEmotion(emotion.name);
+      const defaultColorName = this.defaultColorMap[emotion.name];
+
+      if (colorName === defaultColorName) {
+        return emotion; // Return original if not customized
+      }
+
+      let colorClass: string;
+      if (['red', 'purple', 'pink', 'rose', 'fuchsia'].includes(colorName)) {
+        colorClass = `bg-${colorName}-500 dark:bg-${colorName}-500`;
+      } else if (colorName === 'green') {
+        colorClass = `bg-${colorName}-500 dark:bg-${colorName}-600`;
+      } else {
+        colorClass = `bg-${colorName}-400 dark:bg-${colorName}-500`;
+      }
+
+      return {
+        ...emotion,
+        color: colorClass,
+        bgTint: `bg-${colorName}-100/50 dark:bg-${colorName}-900/20`,
+        homeStyle: `bg-${colorName}-100 text-${colorName}-700 dark:bg-${colorName}-900/50 dark:text-${colorName}-400 border border-${colorName}-200 dark:border-${colorName}-800 hover:border-${colorName}-400 dark:hover:border-${colorName}-600`,
+      };
+    });
   }
 
   getEmotionByName(name: string): Emotion | undefined {
-    return this.emotions.find(e => e.name === name);
+    return this.getEmotions().find(e => e.name === name);
   }
 }

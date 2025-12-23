@@ -6,7 +6,7 @@ import { EmotionService } from './emotion.service';
 
 @Injectable({ providedIn: 'root' })
 export class StrategyService {
-    private emotionService = inject(EmotionService);
+    private emotionService: EmotionService;
     private readonly storageKey = 'feel-better-strategies';
 
     private strategyDetailsMap = new Map<string, { title: string; steps: string[]; toolId?: 'grounding' }>([
@@ -270,6 +270,7 @@ export class StrategyService {
     readonly strategies: WritableSignal<UserEmotionStrategies>;
 
     constructor() {
+        this.emotionService = inject(EmotionService);
         this.strategies = signal<UserEmotionStrategies>(this.loadFromStorage());
         effect(() => {
             this.saveToStorage(this.strategies());

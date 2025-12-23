@@ -34,6 +34,7 @@ export class AppComponent {
 
   // Data signals
   emotions = signal<Emotion[]>([]);
+  availableColors: string[] = [];
   journalEntries = this.journalService.journal;
   userStrategies = this.strategyService.strategies;
   
@@ -239,6 +240,7 @@ export class AppComponent {
     this.initializeTheme();
     this.initializeDailyMoment();
     this.emotions.set(this.emotionService.getEmotions());
+    this.availableColors = this.emotionService.availableColors;
     this.newJournalEmotion.set(this.emotions()[0]?.name || '');
 
     afterNextRender(() => {
@@ -346,23 +348,17 @@ export class AppComponent {
   getEmotionColor(emotionName: string): string {
     return this.emotions().find(e => e.name === emotionName)?.color || 'bg-gray-200';
   }
+
+  private tailwindColorHexMap: { [key: string]: string } = {
+    'slate': '#64748b', 'gray': '#6b7280', 'zinc': '#71717a', 'neutral': '#737373', 'stone': '#78716c',
+    'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e',
+    'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1',
+    'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e'
+  };
   
   getEmotionTailwindColor(emotionName: string): string {
-    const emotion = this.emotions().find(e => e.name === emotionName);
-    if (!emotion) return '#9ca3af'; // gray-400
-  
-    // This is a hacky way to get a hex code from Tailwind class names.
-    // A better approach would be to have hex codes in the emotion definition.
-    if (emotion.name === 'Joy') return '#facc15'; // yellow-400
-    if (emotion.name === 'Sadness') return '#60a5fa'; // blue-400
-    if (emotion.name === 'Anger') return '#ef4444'; // red-500
-    if (emotion.name === 'Fear') return '#a855f7'; // purple-500
-    if (emotion.name === 'Surprise') return '#22d3ee'; // cyan-400
-    if (emotion.name === 'Anticipation') return '#fb923c'; // orange-400
-    if (emotion.name === 'Disgust') return '#22c55e'; // green-500
-    if (emotion.name === 'Trust') return '#34d399'; // emerald-400
-  
-    return '#9ca3af';
+    const colorName = this.emotionService.getCurrentColorNameForEmotion(emotionName);
+    return this.tailwindColorHexMap[colorName] || '#9ca3af'; // fallback to gray
   }
 
   getEmotionBgTint(emotionName: string): string {
@@ -376,6 +372,33 @@ export class AppComponent {
 
   setTheme(theme: 'light' | 'dark'): void {
     this.theme.set(theme);
+  }
+
+  // --- Emotion Color Customization ---
+  getCurrentEmotionColor(emotionName: string): string {
+    return this.emotionService.getCurrentColorNameForEmotion(emotionName);
+  }
+
+  isEmotionColorDefault(emotionName: string): boolean {
+    const currentColor = this.emotionService.getCurrentColorNameForEmotion(emotionName);
+    const defaultColor = this.emotionService.getDefaultColorName(emotionName);
+    return currentColor === defaultColor;
+  }
+
+  updateEmotionColor(emotionName: string, colorName: string): void {
+    this.emotionService.setEmotionColor(emotionName, colorName);
+    this.emotions.set(this.emotionService.getEmotions());
+    if (this.currentView() === 'growth' && this.chartContainer()) {
+      this.drawDonutChart();
+    }
+  }
+
+  resetEmotionColor(emotionName: string): void {
+    this.emotionService.resetEmotionColor(emotionName);
+    this.emotions.set(this.emotionService.getEmotions());
+    if (this.currentView() === 'growth' && this.chartContainer()) {
+      this.drawDonutChart();
+    }
   }
 
   copyUpiId(): void {
