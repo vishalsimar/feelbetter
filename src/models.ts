@@ -3,7 +3,6 @@ export interface Emotion {
   description: string;
   color: string; // Tailwind color class e.g., 'bg-blue-500' for journal, trends, etc.
   bgTint: string; // Lighter tint for backgrounds like journal entry cards.
-  homeStyle: string; // Tailwind classes for the home screen button.
   icon: string; // SVG path data
   oppositeAction?: {
     suggestion: string;
@@ -66,14 +65,4 @@ export interface ThoughtChallengerRecord {
   evidenceAgainst: string;
   alternativeThought: string;
   finalIntensity: number;
-}
-
-// FIX: Add the missing JournalEntryInsight interface required by GeminiService.
-export interface JournalEntryInsight {
-  summary: string;
-  theme: string;
-  suggestedStrategy: {
-    title: string;
-    emotion: string;
-  };
 }

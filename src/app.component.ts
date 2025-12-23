@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, ElementRef, viewChild, afterNextRender } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, ElementRef, viewChild } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Emotion, JournalEntry, Step, Strategy, ThoughtChallengerRecord } from './models';
@@ -42,9 +42,17 @@ export class AppComponent {
   newJournalEmotion = signal<string>('');
   newJournalNotes = signal<string>('');
 
-  // Theme management
-  private readonly themeKey = 'feel-better-theme';
-  theme = signal<'light' | 'dark'>('light');
+  // --- Theme Management ---
+  private readonly colorModeKey = 'feel-better-color-mode';
+  private readonly activeThemeKey = 'feel-better-active-theme';
+  colorMode = signal<'light' | 'dark'>('light');
+  activeTheme = signal<string>('playful');
+  themes = [
+    { id: 'playful', name: 'Playful', colors: ['#7e5bef', '#ff6bdf'] },
+    { id: 'sunset', name: 'Sunset', colors: ['#ff8c42', '#ec4899'] },
+    { id: 'ocean', name: 'Ocean', colors: ['#0284c7', '#ff6f61'] },
+    { id: 'meadow', name: 'Meadow', colors: ['#22c55e', '#a3e635'] }
+  ];
 
   // Donation state
   readonly upiId = 'vishalsimar@upi';
@@ -243,33 +251,45 @@ export class AppComponent {
     this.availableColors = this.emotionService.availableColors;
     this.newJournalEmotion.set(this.emotions()[0]?.name || '');
 
-    afterNextRender(() => {
-        effect(() => {
-            if (this.currentView() === 'growth' && this.chartContainer()) {
-                this.drawDonutChart();
-            }
-        });
+    effect(() => {
+        if (this.currentView() === 'growth' && this.chartContainer()) {
+            this.drawDonutChart();
+        }
     });
   }
 
   private initializeTheme(): void {
-    const storedTheme = localStorage.getItem(this.themeKey) as 'light' | 'dark' | null;
-    if (storedTheme) {
-      this.theme.set(storedTheme);
+    const storedMode = localStorage.getItem(this.colorModeKey) as 'light' | 'dark' | null;
+    if (storedMode) {
+      this.colorMode.set(storedMode);
     } else {
-      const isDark = document.documentElement.classList.contains('dark');
-      this.theme.set(isDark ? 'dark' : 'light');
+      this.colorMode.set(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+
+    const storedTheme = localStorage.getItem(this.activeThemeKey);
+    if (storedTheme) {
+      this.activeTheme.set(storedTheme);
     }
 
     effect(() => {
-      const currentTheme = this.theme();
-      if (currentTheme === 'dark') {
-        document.documentElement.classList.add('dark');
+      const mode = this.colorMode();
+      const theme = this.activeTheme();
+      const html = document.documentElement;
+
+      // Set color mode class
+      if (mode === 'dark') {
+        html.classList.add('dark');
       } else {
-        document.documentElement.classList.remove('dark');
+        html.classList.remove('dark');
       }
-      localStorage.setItem(this.themeKey, currentTheme);
-      // Redraw chart on theme change
+      localStorage.setItem(this.colorModeKey, mode);
+
+      // Set theme class
+      html.className = html.className.replace(/theme-\S+/g, '').trim();
+      html.classList.add(`theme-${theme}`);
+      localStorage.setItem(this.activeThemeKey, theme);
+      
+      // Redraw chart on theme or mode change
       if (this.currentView() === 'growth' && this.chartContainer()) {
           this.drawDonutChart();
       }
@@ -370,8 +390,12 @@ export class AppComponent {
     return bgColor.replace(/bg-/g, 'border-');
   }
 
-  setTheme(theme: 'light' | 'dark'): void {
-    this.theme.set(theme);
+  setColorMode(mode: 'light' | 'dark'): void {
+    this.colorMode.set(mode);
+  }
+
+  setActiveTheme(themeId: string): void {
+    this.activeTheme.set(themeId);
   }
 
   // --- Emotion Color Customization ---
@@ -773,7 +797,7 @@ ${data.evidenceAgainst.split('\n').map(l => l.trim() ? `- ${l}` : '').filter(Boo
     const height = container.clientHeight;
     const margin = 10;
     const radius = Math.min(width, height) / 2 - margin;
-    const isDarkMode = this.theme() === 'dark';
+    const isDarkMode = this.colorMode() === 'dark';
 
     const svg = d3.select(container)
         .append('svg')
@@ -792,6 +816,10 @@ ${data.evidenceAgainst.split('\n').map(l => l.trim() ? `- ${l}` : '').filter(Boo
     const arc = d3.arc()
         .innerRadius(radius * 0.5)
         .outerRadius(radius * 0.85);
+        
+    const computedStyle = getComputedStyle(document.documentElement);
+    const strokeColor = isDarkMode ? `rgb(${computedStyle.getPropertyValue('--bg-subtle')})` : `rgb(${computedStyle.getPropertyValue('--bg-default')})`;
+    const centerTextColor = `rgb(${computedStyle.getPropertyValue('--text-default')})`;
 
     svg.selectAll('path')
         .data(data_ready)
@@ -799,7 +827,7 @@ ${data.evidenceAgainst.split('\n').map(l => l.trim() ? `- ${l}` : '').filter(Boo
         .append('path')
         .attr('d', arc)
         .attr('fill', d => color(d.data.name))
-        .attr('stroke', isDarkMode ? '#1e293b' : '#f1f5f9' ) // slate-800 or slate-100
+        .attr('stroke', strokeColor)
         .style('stroke-width', '2px')
         .style('opacity', 0.8);
     
@@ -810,7 +838,7 @@ ${data.evidenceAgainst.split('\n').map(l => l.trim() ? `- ${l}` : '').filter(Boo
         .text('30 Days')
         .style('font-size', '1.2rem')
         .style('font-weight', 'bold')
-        .style('fill', isDarkMode ? '#f1f5f9' : '#1e293b');
+        .style('fill', centerTextColor);
   }
 
 }

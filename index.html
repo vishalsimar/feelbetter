@@ -6,8 +6,9 @@
   <title>Feel Better</title>
   <script>
     // This script sets the theme on initial load to prevent FOUC (Flash of Unstyled Content).
-    // The Angular app is the single source of truth for persisting the theme choice.
-    if (localStorage.getItem('feel-better-theme') === 'dark' || (!('feel-better-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    const theme = localStorage.getItem('feel-better-active-theme') || 'playful';
+    document.documentElement.classList.add(`theme-${theme}`);
+    if (localStorage.getItem('feel-better-color-mode') === 'dark' || (!('feel-better-color-mode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
@@ -16,6 +17,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
+    
     /* Custom scrollbar for a softer look */
     ::-webkit-scrollbar {
       width: 6px;
@@ -40,6 +43,14 @@
     .animate-fade-in {
       animation: fadeIn 0.5s ease-in-out;
     }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-up {
+      animation: fadeInUp 0.5s ease-in-out both;
+    }
+
     /* Aurora Background */
     body::before {
         content: '';
@@ -50,23 +61,82 @@
         height: 100%;
         z-index: -10;
         pointer-events: none;
-        background: radial-gradient(circle at 10% 20%, rgba(168, 113, 255, 0.15), transparent 40%),
-                    radial-gradient(circle at 80% 90%, rgba(113, 207, 255, 0.15), transparent 40%),
+        background: radial-gradient(circle at 10% 20%, rgb(var(--accent) / 0.1), transparent 40%),
+                    radial-gradient(circle at 80% 90%, rgb(var(--accent-secondary) / 0.1), transparent 40%),
                     radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05), transparent 30%);
         animation: aurora 25s infinite linear;
         will-change: transform;
     }
     .dark body::before {
-        background: radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.2), transparent 40%),
-                    radial-gradient(circle at 80% 90%, rgba(14, 116, 144, 0.3), transparent 40%),
+        background: radial-gradient(circle at 10% 20%, rgb(var(--accent) / 0.15), transparent 40%),
+                    radial-gradient(circle at 80% 90%, rgb(var(--accent-secondary) / 0.2), transparent 40%),
                     radial-gradient(circle at 50% 50%, rgba(51, 65, 85, 0.2), transparent 40%);
-        animation: aurora 25s infinite linear;
     }
     @keyframes aurora {
         0% { transform: rotate(0deg) scale(1.5); opacity: 0.5; }
         50% { transform: rotate(180deg) scale(2); opacity: 1; }
         100% { transform: rotate(360deg) scale(1.5); opacity: 0.5; }
     }
+    
+    /* --- THEME DEFINITIONS --- */
+    :root, .theme-playful {
+      --bg-default: 248 247 255; --bg-subtle: 255 255 255; --bg-ui: 238 232 255;
+      --text-default: 29 20 67; --text-muted: 99 87 146; --text-accent: 126 91 239;
+      --border-default: 221 214 254; --border-muted: 245 243 255;
+      --accent: 126 91 239; --accent-secondary: 255 107 223; --accent-fg: 255 255 255;
+    }
+    .dark.theme-playful {
+      --bg-default: 25 24 37; --bg-subtle: 38 36 55; --bg-ui: 51 48 74;
+      --text-default: 224 221 235; --text-muted: 151 147 172; --text-accent: 255 163 253;
+      --border-default: 51 48 74; --border-muted: 42 40 60;
+      --accent: 255 163 253; --accent-secondary: 113 227 255; --accent-fg: 25 24 37;
+    }
+    
+    .theme-sunset {
+      --bg-default: 255 249 245; --bg-subtle: 255 255 255; --bg-ui: 255 237 213;
+      --text-default: 92 61 46; --text-muted: 147 108 88; --text-accent: 255 140 66;
+      --border-default: 254 215 170; --border-muted: 255 247 237;
+      --accent: 255 140 66; --accent-secondary: 236 72 153; --accent-fg: 255 255 255;
+    }
+    .dark.theme-sunset {
+      --bg-default: 42 30 58; --bg-subtle: 57 45 78; --bg-ui: 75 62 98;
+      --text-default: 254 215 170; --text-muted: 198 167 145; --text-accent: 251 146 60;
+      --border-default: 75 62 98; --border-muted: 62 50 85;
+      --accent: 251 146 60; --accent-secondary: 255 107 107; --accent-fg: 255 255 255;
+    }
+
+    .theme-ocean {
+      --bg-default: 240 250 255; --bg-subtle: 255 255 255; --bg-ui: 224 242 254;
+      --text-default: 0 77 64; --text-muted: 0 121 107; --text-accent: 2 132 199;
+      --border-default: 179 229 252; --border-muted: 224 242 254;
+      --accent: 2 132 199; --accent-secondary: 255 111 97; --accent-fg: 255 255 255;
+    }
+    .dark.theme-ocean {
+      --bg-default: 13 22 36; --bg-subtle: 22 36 56; --bg-ui: 30 49 75;
+      --text-default: 178 254 252; --text-muted: 132 217 215; --text-accent: 56 189 248;
+      --border-default: 30 49 75; --border-muted: 25 41 64;
+      --accent: 56 189 248; --accent-secondary: 165 243 252; --accent-fg: 12 74 110;
+    }
+
+    .theme-meadow {
+      --bg-default: 245 253 245; --bg-subtle: 255 255 255; --bg-ui: 220 252 231;
+      --text-default: 30 70 32; --text-muted: 61 110 63; --text-accent: 34 197 94;
+      --border-default: 187 247 208; --border-muted: 220 252 231;
+      --accent: 34 197 94; --accent-secondary: 163 230 53; --accent-fg: 255 255 255;
+    }
+    .dark.theme-meadow {
+      --bg-default: 20 38 31; --bg-subtle: 27 52 41; --bg-ui: 35 68 53;
+      --text-default: 209 242 225; --text-muted: 153 218 178; --text-accent: 74 222 128;
+      --border-default: 35 68 53; --border-muted: 30 58 45;
+      --accent: 74 222 128; --accent-secondary: 190 242 100; --accent-fg: 20 38 31;
+    }
+    
+    body {
+      background-color: rgb(var(--bg-default) / 0.5);
+      color: rgb(var(--text-default));
+      font-family: 'Nunito', sans-serif;
+    }
+
     /* Global smooth transitions */
     * {
         transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
@@ -87,13 +157,12 @@
     "@angular/compiler": "https://next.esm.sh/@angular/compiler@^20.3.10?external=rxjs",
     "@angular/common": "https://next.esm.sh/@angular/common@^20.3.10?external=rxjs",
     "@angular/platform-browser": "https://next.esm.sh/@angular/platform-browser@^20.3.10?external=rxjs",
-    "@angular/core": "https://next.esm.sh/@angular/core@^20.3.10?external=rxjs",
-    "@google/genai": "https://esm.sh/@google/genai"
+    "@angular/core": "https://next.esm.sh/@angular/core@^20.3.10?external=rxjs"
   }
 }
 </script>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 antialiased">
+<body class="antialiased">
   <app-root></app-root>
 </body>
 </html>

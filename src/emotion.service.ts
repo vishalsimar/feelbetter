@@ -32,12 +32,11 @@ export class EmotionService {
       description: 'A feeling of great pleasure and happiness.',
       color: 'bg-yellow-400 dark:bg-yellow-500',
       bgTint: 'bg-yellow-100/50 dark:bg-yellow-900/20',
-      homeStyle: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800 hover:border-yellow-400 dark:hover:border-yellow-600',
       icon: 'M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
       scenarios: {
         self: {
           title: "I'm feeling Joyful",
-          immediate: ['Share your feeling with someone.', 'Smile and savor the moment.', 'Listen to uplifting music.'],
+          immediate: ['Smile and savor the moment.', 'Share your feeling with someone.', 'Listen to uplifting music.'],
           shortTerm: ['Write down what you\'re grateful for.', 'Do something you love.', 'Plan a fun activity.'],
           longTerm: ['Cultivate hobbies that bring you joy.', 'Practice gratitude regularly.', 'Build strong, positive relationships.'],
         },
@@ -60,7 +59,6 @@ export class EmotionService {
       description: 'A feeling of sorrow, unhappiness, or grief.',
       color: 'bg-blue-400 dark:bg-blue-500',
       bgTint: 'bg-blue-100/50 dark:bg-blue-900/20',
-      homeStyle: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-400 border border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600',
       icon: 'M10 14h4m-2 4a8 8 0 100-16 8 8 0 000 16z',
       oppositeAction: {
         suggestion: 'Get active or engage with your surroundings.',
@@ -70,19 +68,19 @@ export class EmotionService {
         self: {
           title: "I'm feeling Sad",
           immediate: ['Allow yourself to cry if you need to.', 'Wrap yourself in a warm blanket.', 'Drink a warm, comforting beverage.'],
-          shortTerm: ['Talk to a trusted friend or family member.', 'Watch a comforting movie or show.', 'Go for a gentle walk in nature.'],
-          longTerm: ['Seek professional help if sadness persists.', 'Practice self-compassion.', 'Connect with a support group.'],
+          shortTerm: ['Talk to a trusted friend or family member.', 'Go for a gentle walk in nature.', 'Watch a comforting movie or show.'],
+          longTerm: ['Practice self-compassion.', 'Connect with a support group.', 'Seek professional help if sadness persists.'],
         },
         friend: {
           title: 'My friend is feeling Sad',
           immediate: ['Just be there and listen.', 'Offer a hug if appropriate.', 'Say "It\'s okay to be sad."'],
           shortTerm: ['Check in on them regularly.', 'Help with practical tasks like cooking or cleaning.', 'Invite them for a low-key activity.'],
-          longTerm: ['Encourage them to seek help if needed.', 'Be patient with their healing process.', 'Remind them you care.'],
+          longTerm: ['Be patient with their healing process.', 'Encourage them to seek help if needed.', 'Remind them you care.'],
         },
         caused: {
           title: 'I caused someone Sadness',
           immediate: ['Apologize sincerely and specifically.', 'Listen to their perspective without getting defensive.', 'Acknowledge their pain: "I understand why you\'re hurt."'],
-          shortTerm: ['Give them space, but let them know you\'re there.', 'Ask how you can make things right.', 'Reflect on your actions.'],
+          shortTerm: ['Ask how you can make things right.', 'Give them space, but let them know you\'re there.', 'Reflect on your actions.'],
           longTerm: ['Learn from the mistake.', 'Work on rebuilding trust through consistent, positive actions.', 'Practice better communication.'],
         },
       },
@@ -92,7 +90,6 @@ export class EmotionService {
       description: 'A strong feeling of annoyance, displeasure, or hostility.',
       color: 'bg-red-500 dark:bg-red-500',
       bgTint: 'bg-red-100/50 dark:bg-red-900/20',
-      homeStyle: 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400 border border-red-200 dark:border-red-800 hover:border-red-400 dark:hover:border-red-600',
       icon: 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
       oppositeAction: {
         suggestion: 'Gently wash your face with cool water or offer a kind gesture.',
@@ -101,14 +98,14 @@ export class EmotionService {
       scenarios: {
         self: {
           title: "I'm feeling Angry",
-          immediate: ['Take 10 deep, slow breaths.', 'Count to 20 before reacting.', 'Leave the situation for a few minutes.'],
+          immediate: ['Take 10 deep, slow breaths.', 'Leave the situation for a few minutes.', 'Count to 20 before reacting.'],
           shortTerm: ['Engage in physical activity like running or punching a pillow.', 'Write down your feelings in a journal.', 'Listen to intense music.'],
           longTerm: ['Identify your anger triggers.', 'Learn healthy communication skills.', 'Practice relaxation techniques like meditation.'],
         },
         friend: {
           title: 'My friend is feeling Angry',
           immediate: ['Stay calm.', 'Listen without judging or interrupting.', 'Validate their feelings: "I can see why you\'re so angry."'],
-          shortTerm: ['Give them space to cool down.', 'Suggest a physical activity to burn off steam.', 'Avoid telling them to "calm down."'],
+          shortTerm: ['Give them space to cool down.', 'Avoid telling them to "calm down."', 'Suggest a physical activity to burn off steam.'],
           longTerm: ['Help them identify the root of their anger.', 'Encourage constructive ways to express their feelings.', 'Be a reliable, calm presence.'],
         },
         caused: {
@@ -124,7 +121,6 @@ export class EmotionService {
       description: 'An unpleasant emotion caused by the belief that someone or something is dangerous, likely to cause pain, or a threat.',
       color: 'bg-purple-500 dark:bg-purple-500',
       bgTint: 'bg-purple-100/50 dark:bg-purple-900/20',
-      homeStyle: 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-400 border border-purple-200 dark:border-purple-800 hover:border-purple-400 dark:hover:border-purple-600',
       icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
       oppositeAction: {
         suggestion: 'Approach one small, safe part of what you fear.',
@@ -134,19 +130,19 @@ export class EmotionService {
         self: {
           title: "I'm feeling Fearful",
           immediate: ['Focus on your breathing; inhale for 4, hold for 4, exhale for 6.', 'Ground yourself: name 5 things you see, 4 you feel, 3 you hear.', 'Hold a piece of ice.'],
-          shortTerm: ['Talk about your fear with someone you trust.', 'Write down what you are afraid of and why.', 'Do something that makes you feel safe and comfortable.'],
+          shortTerm: ['Talk about your fear with someone you trust.', 'Do something that makes you feel safe and comfortable.', 'Write down what you are afraid of and why.'],
           longTerm: ['Break down the fear into smaller, manageable steps.', 'Gradually expose yourself to what you fear in a safe way.', 'Consider therapy (like CBT) for persistent fears.'],
         },
         friend: {
           title: 'My friend is feeling Fearful',
           immediate: ['Speak in a calm, reassuring voice.', 'Remind them they are safe with you.', 'Ask what would help them feel safer right now.'],
-          shortTerm: ['Don\'t dismiss their fears.', 'Help them think through the fear logically, but only if they are ready.', 'Distract them with a pleasant activity.'],
+          shortTerm: ['Don\'t dismiss their fears.', 'Distract them with a pleasant activity.', 'Help them think through the fear logically, but only if they are ready.'],
           longTerm: ['Support them in facing their fears at their own pace.', 'Celebrate small victories with them.', 'Encourage them to seek professional help if it\'s debilitating.'],
         },
         caused: {
           title: 'I caused someone Fear',
           immediate: ['Stop the action causing the fear immediately.', 'Give them physical space.', 'Apologize for making them feel unsafe.'],
-          shortTerm: ['Reassure them of your intentions (if they were good).', 'Ask what you can do to restore their sense of safety.', 'Listen to their experience without justification.'],
+          shortTerm: ['Ask what you can do to restore their sense of safety.', 'Reassure them of your intentions (if they were good).', 'Listen to their experience without justification.'],
           longTerm: ['Understand what you did to cause fear.', 'Commit to creating a safe environment.', 'Be patient, as trust and safety take time to rebuild.'],
         },
       },
@@ -156,7 +152,6 @@ export class EmotionService {
       description: 'The feeling of astonishment or amazement caused by something unexpected.',
       color: 'bg-cyan-400 dark:bg-cyan-500',
       bgTint: 'bg-cyan-100/50 dark:bg-cyan-900/20',
-      homeStyle: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800 hover:border-cyan-400 dark:hover:border-cyan-600',
       icon: 'M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z',
       scenarios: {
         self: {
@@ -184,14 +179,13 @@ export class EmotionService {
       description: 'A feeling of excitement or anxiety about something that is going to happen.',
       color: 'bg-orange-400 dark:bg-orange-500',
       bgTint: 'bg-orange-100/50 dark:bg-orange-900/20',
-      homeStyle: 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-400 border border-orange-200 dark:border-orange-800 hover:border-orange-400 dark:hover:border-orange-600',
       icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
       scenarios: {
         self: {
           title: "I'm feeling Anticipation",
           immediate: ['Acknowledge the feeling.', 'Take a few deep breaths to manage excitement or anxiety.', 'Focus on the present moment for a bit.'],
           shortTerm: ['Prepare for the event if possible.', 'Talk about your feelings with someone.', 'Distract yourself with a pleasant activity if the anticipation is overwhelming.'],
-          longTerm: ['Practice mindfulness to manage future-oriented thoughts.', 'Learn to differentiate between excited and anxious anticipation.', 'Set realistic expectations for future events.'],
+          longTerm: ['Practice mindfulness to manage future-oriented thoughts.', 'Set realistic expectations for future events.', 'Learn to differentiate between excited and anxious anticipation.'],
         },
         friend: {
           title: 'My friend is feeling Anticipation',
@@ -212,7 +206,6 @@ export class EmotionService {
       description: 'A feeling of revulsion or strong disapproval aroused by something unpleasant or offensive.',
       color: 'bg-green-500 dark:bg-green-600',
       bgTint: 'bg-green-100/50 dark:bg-green-900/20',
-      homeStyle: 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400 border border-green-200 dark:border-green-800 hover:border-green-400 dark:hover:border-green-600',
       icon: 'M12 2a10 10 0 100 20 10 10 0 000-20zM9 10h.01M15 10h.01M8 14s1.5 2 4 2 4-2 4-2',
       scenarios: {
         self: {
@@ -240,7 +233,6 @@ export class EmotionService {
       description: 'A firm belief in the reliability, truth, ability, or strength of someone or something.',
       color: 'bg-emerald-400 dark:bg-emerald-500',
       bgTint: 'bg-emerald-100/50 dark:bg-emerald-900/20',
-      homeStyle: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 dark:hover:border-emerald-600',
       icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
       scenarios: {
         self: {
@@ -327,7 +319,6 @@ export class EmotionService {
         ...emotion,
         color: colorClass,
         bgTint: `bg-${colorName}-100/50 dark:bg-${colorName}-900/20`,
-        homeStyle: `bg-${colorName}-100 text-${colorName}-700 dark:bg-${colorName}-900/50 dark:text-${colorName}-400 border border-${colorName}-200 dark:border-${colorName}-800 hover:border-${colorName}-400 dark:hover:border-${colorName}-600`,
       };
     });
   }
