@@ -169,39 +169,49 @@ export class AppComponent {
   // --- Growth Page ---
   journalingStreak = computed(() => {
     const entries = this.journalEntries();
-    if (entries.length === 0) return 0;
+    if (entries.length === 0) {
+      return 0;
+    }
 
-    // FIX: Use Array.from() to correctly infer the type of the array from the Set.
-    // The spread operator `[...new Set(...)]` was inferring `unknown[]`, causing a type error.
-    const dates: string[] = Array.from(new Set(entries.map(e => new Date(e.date).toDateString())));
-    dates.sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
-    
-    let streak = 0;
-    let today = new Date();
-    
-    // Check if today is in the list
-    if (dates.includes(today.toDateString())) {
-      streak = 1;
-    } else {
-      // If not, check if yesterday is the last entry to start streak from there
-      let yesterday = new Date();
-      yesterday.setDate(today.getDate() - 1);
-      if (!dates.includes(yesterday.toDateString())) return 0;
+    // Get unique timestamps at the start of each day, in descending order
+    // FIX: Explicitly type the Set as Set<number> to ensure TypeScript infers uniqueTimestamps
+    // as a number array. This resolves errors with arithmetic operations on 'any' type.
+    const uniqueTimestamps = Array.from(
+      new Set<number>(entries.map(e => new Date(e.date).setHours(0, 0, 0, 0)))
+    ).sort((a, b) => b - a);
+
+    if (uniqueTimestamps.length === 0) {
+      return 0;
     }
     
-    let currentDate = new Date(dates[0]);
-    for (let i = 1; i < dates.length; i++) {
-      let nextDate = new Date(dates[i]);
-      let expectedDate = new Date(currentDate);
-      expectedDate.setDate(currentDate.getDate() - 1);
-      
-      if (nextDate.toDateString() === expectedDate.toDateString()) {
-        streak++;
-        currentDate = nextDate;
-      } else {
-        break;
+    const today = new Date().setHours(0, 0, 0, 0);
+    const yesterday = today - 86400000; // Milliseconds in a day
+
+    // Find where the streak should start from (today or yesterday)
+    let startIndex = uniqueTimestamps.findIndex(ts => ts === today);
+    if (startIndex === -1) {
+      startIndex = uniqueTimestamps.findIndex(ts => ts === yesterday);
+      if (startIndex === -1) {
+        return 0; // No entry for today or yesterday, so streak is 0.
       }
     }
+
+    let streak = 1;
+    let currentTs = uniqueTimestamps[startIndex];
+
+    // Iterate from the starting point to check for consecutive days
+    for (let i = startIndex + 1; i < uniqueTimestamps.length; i++) {
+      const nextTs = uniqueTimestamps[i];
+      const expectedTs = currentTs - 86400000;
+      
+      if (nextTs === expectedTs) {
+        streak++;
+        currentTs = nextTs;
+      } else {
+        break; // Streak is broken
+      }
+    }
+
     return streak;
   });
 
@@ -810,7 +820,7 @@ ${data.evidenceAgainst.split('\n').map(l => l.trim() ? `- ${l}` : '').filter(Boo
         .domain(data.map(d => d.name))
         .range(data.map(d => this.getEmotionTailwindColor(d.name)));
 
-    const pie = d3.pie().value(d => d.count).sort(null);
+    const pie = d3.pie().value((d: any) => d.count).sort(null);
     const data_ready = pie(data);
 
     const arc = d3.arc()
@@ -826,7 +836,7 @@ ${data.evidenceAgainst.split('\n').map(l => l.trim() ? `- ${l}` : '').filter(Boo
         .enter()
         .append('path')
         .attr('d', arc)
-        .attr('fill', d => color(d.data.name))
+        .attr('fill', (d: any) => color(d.data.name))
         .attr('stroke', strokeColor)
         .style('stroke-width', '2px')
         .style('opacity', 0.8);
