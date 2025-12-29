@@ -16,7 +16,7 @@
         <div class="space-y-12">
             <!-- Daily Moment Card -->
             @if (!dailyMomentDone()) {
-              <div class="p-6 rounded-2xl shadow-xl bg-gradient-to-br from-indigo-100 to-violet-100 dark:from-indigo-900/50 dark:to-violet-900/50 bg-[rgb(var(--accent)/0.1)] backdrop-blur-lg border border-white/50 dark:border-slate-700/50 text-center animate-fade-in">
+              <div class="p-6 rounded-2xl shadow-xl bg-gradient-to-br from-indigo-100 to-violet-100 dark:from-indigo-900/50 dark:to-violet-900/50 bg-[rgb(var(--accent)/0.1)] border border-white/50 dark:border-slate-700/50 text-center animate-fade-in">
                 <h3 class="text-xl font-bold mb-2 text-inherit">Your Daily Moment</h3>
                 <p class="text-[rgb(var(--text-muted))] mb-4 text-lg">{{ dailyMomentPrompt() }}</p>
                 <button (click)="completeDailyMoment()" class="bg-[rgb(var(--accent))] text-[rgb(var(--accent-fg))] font-semibold py-2 px-5 rounded-full hover:opacity-90 transition-opacity">
@@ -32,7 +32,7 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               @for (emotion of emotions(); track emotion.name; let i = $index) {
                 <button (click)="selectEmotion(emotion)" 
-                        class="p-4 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 flex flex-col items-center justify-center backdrop-blur-sm border animate-fade-in-up"
+                        class="p-4 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 flex flex-col items-center justify-center border animate-fade-in-up"
                         [style.animation-delay]="i * 50 + 'ms'"
                         [style.background]="'radial-gradient(circle, ' + getEmotionTailwindColor(emotion.name) + '22, transparent 70%)'"
                         [style.border-color]="getEmotionTailwindColor(emotion.name) + '40'">
@@ -42,14 +42,14 @@
               }
             </div>
             <div class="grid md:grid-cols-2 gap-6">
-              <div class="text-center p-6 rounded-2xl shadow-xl bg-[rgb(var(--bg-subtle)/0.4)] backdrop-blur-lg border border-white/50 border-[rgb(var(--border-muted))/0.5]">
+              <div class="text-center p-6 rounded-2xl shadow-xl bg-[rgb(var(--bg-subtle))/0.8] border border-white/50 border-[rgb(var(--border-muted))/0.5]">
                 <h3 class="text-xl font-bold mb-2 text-inherit">Not sure how you feel?</h3>
                 <p class="text-[rgb(var(--text-muted))] mb-4">That's perfectly okay. Let's try to figure it out together.</p>
                 <button (click)="setView('finder')" class="bg-[rgb(var(--accent))] text-[rgb(var(--accent-fg))] font-bold py-2 px-6 rounded-full hover:shadow-lg transition-shadow transform hover:scale-105">
                   Help Me Find My Feeling
                 </button>
               </div>
-              <div class="text-center p-6 rounded-2xl shadow-xl bg-[rgb(var(--bg-subtle)/0.4)] backdrop-blur-lg border border-white/50 border-[rgb(var(--border-muted))/0.5]">
+              <div class="text-center p-6 rounded-2xl shadow-xl bg-[rgb(var(--bg-subtle))/0.8] border border-white/50 border-[rgb(var(--border-muted))/0.5]">
                 <h3 class="text-xl font-bold mb-2 text-inherit">Challenge a Thought</h3>
                 <p class="text-[rgb(var(--text-muted))] mb-4">A guided process to examine and reframe unhelpful thoughts.</p>
                 <button (click)="startThoughtChallenger()" class="bg-purple-500 text-white font-bold py-2 px-6 rounded-full hover:shadow-lg hover:shadow-purple-500/50 transition-shadow transform hover:scale-105">
@@ -90,7 +90,7 @@
               </div>
             }
             
-            <div class="sticky top-0 z-10 bg-[rgb(var(--bg-default))]/70 backdrop-blur-lg pt-2 pb-4 -mx-4 px-4">
+            <div class="sticky top-0 z-10 bg-[rgb(var(--bg-default))]/95 pt-2 pb-4 -mx-4 px-4">
               <div class="flex border-b border-[rgb(var(--border-default))] justify-center">
                 @for (scenarioKey of ['self', 'friend', 'caused']; track scenarioKey) {
                   <button (click)="selectScenario(scenarioKey)" 
@@ -254,7 +254,7 @@
       @case ('journal') {
         <div>
           <h2 class="text-3xl font-bold mb-6 text-center text-inherit">My Journal</h2>
-          <div class="bg-[rgb(var(--bg-subtle))]/40 backdrop-blur-lg border border-[rgb(var(--border-muted))]/50 p-6 rounded-2xl shadow-xl mb-8">
+          <div class="bg-[rgb(var(--bg-subtle))/80] border border-[rgb(var(--border-muted))]/50 p-6 rounded-2xl shadow-xl mb-8">
             <h3 class="font-bold text-xl mb-4 text-inherit">New Entry</h3>
             <form (submit)="submitJournalEntry()">
               <div class="mb-4">
@@ -325,7 +325,7 @@
         <div>
           <h2 class="text-3xl font-bold mb-1 text-center text-inherit">Your Emotional Trends</h2>
           <p class="text-center text-[rgb(var(--text-muted))] mb-6 text-lg">{{ trendsData().monthName }} {{ trendsData().year }}</p>
-          <div class="bg-[rgb(var(--bg-subtle))]/40 backdrop-blur-lg border border-[rgb(var(--border-muted))]/50 p-4 sm:p-6 rounded-2xl shadow-xl">
+          <div class="bg-[rgb(var(--bg-subtle))/80] border border-[rgb(var(--border-muted))]/50 p-4 sm:p-6 rounded-2xl shadow-xl">
             <div class="grid grid-cols-7 text-center font-bold text-sm text-[rgb(var(--text-muted))] mb-2">
                 @for (day of trendsData().weekdays; track day) { <div>{{day}}</div> }
             </div>
@@ -372,21 +372,21 @@
             <h2 class="text-3xl font-bold text-center text-inherit">My Growth</h2>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                <div class="p-6 rounded-2xl shadow-xl bg-[rgb(var(--bg-subtle))]/40 backdrop-blur-lg border border-[rgb(var(--border-muted))]/50">
+                <div class="p-6 rounded-2xl shadow-xl bg-[rgb(var(--bg-subtle))/80] border border-[rgb(var(--border-muted))]/50">
                     <p class="text-5xl font-bold text-[rgb(var(--accent))]">{{ journalingStreak() }}</p>
                     <p class="text-[rgb(var(--text-muted))] mt-1 font-semibold">Day Journaling Streak</p>
                 </div>
-                <div class="p-6 rounded-2xl shadow-xl bg-[rgb(var(--bg-subtle))]/40 backdrop-blur-lg border border-[rgb(var(--border-muted))]/50">
+                <div class="p-6 rounded-2xl shadow-xl bg-[rgb(var(--bg-subtle))/80] border border-[rgb(var(--border-muted))]/50">
                     <p class="text-5xl font-bold text-[rgb(var(--accent))]">{{ journalEntries().length }}</p>
                     <p class="text-[rgb(var(--text-muted))] mt-1 font-semibold">Total Entries</p>
                 </div>
-                <div class="p-6 rounded-2xl shadow-xl bg-[rgb(var(--bg-subtle))]/40 backdrop-blur-lg border border-[rgb(var(--border-muted))]/50">
+                <div class="p-6 rounded-2xl shadow-xl bg-[rgb(var(--bg-subtle))/80] border border-[rgb(var(--border-muted))]/50">
                     <p class="text-5xl font-bold text-[rgb(var(--accent))]">{{ breathingSessionsCompleted() }}</p>
                     <p class="text-[rgb(var(--text-muted))] mt-1 font-semibold">Breathing Sessions</p>
                 </div>
             </div>
 
-            <div class="p-6 rounded-2xl shadow-xl bg-[rgb(var(--bg-subtle))]/40 backdrop-blur-lg border border-[rgb(var(--border-muted))]/50">
+            <div class="p-6 rounded-2xl shadow-xl bg-[rgb(var(--bg-subtle))/80] border border-[rgb(var(--border-muted))]/50">
               <h3 class="font-bold text-xl mb-4 text-inherit text-center">Emotion Distribution (Last 30 Days)</h3>
               <div class="flex flex-col md:flex-row items-center gap-6">
                   <div #chartContainer class="w-full h-52 md:w-52 flex-shrink-0"></div>
@@ -414,7 +414,7 @@
         <div class="space-y-8">
           <h2 class="text-3xl font-bold text-center text-inherit">Settings</h2>
           
-          <div class="bg-[rgb(var(--bg-subtle))]/40 backdrop-blur-lg border border-[rgb(var(--border-muted))]/50 p-6 rounded-2xl shadow-xl">
+          <div class="bg-[rgb(var(--bg-subtle))/80] border border-[rgb(var(--border-muted))]/50 p-6 rounded-2xl shadow-xl">
             <h3 class="font-bold text-xl mb-4 text-inherit">Appearance</h3>
             <div class="flex items-center justify-between">
               <span class="text-inherit font-semibold">Mode</span>
@@ -443,7 +443,7 @@
             </div>
           </div>
 
-          <div class="bg-[rgb(var(--bg-subtle))]/40 backdrop-blur-lg border border-[rgb(var(--border-muted))]/50 p-6 rounded-2xl shadow-xl">
+          <div class="bg-[rgb(var(--bg-subtle))/80] border border-[rgb(var(--border-muted))]/50 p-6 rounded-2xl shadow-xl">
             <h3 class="font-bold text-xl mb-2 text-inherit">Emotion Colors</h3>
             <p class="text-[rgb(var(--text-muted))] mb-6">
                 Customize the color associated with each emotion throughout the app.
@@ -479,7 +479,7 @@
             </div>
           </div>
 
-          <div class="bg-[rgb(var(--bg-subtle))]/40 backdrop-blur-lg border border-[rgb(var(--border-muted))]/50 p-6 rounded-2xl shadow-xl">
+          <div class="bg-[rgb(var(--bg-subtle))/80] border border-[rgb(var(--border-muted))]/50 p-6 rounded-2xl shadow-xl">
               <h3 class="font-bold text-xl mb-2 text-inherit">Data Management</h3>
               <p class="text-[rgb(var(--text-muted))] mb-4">
                   Your journal data is stored only on this device. You can export it as a JSON file for your records.
@@ -492,7 +492,7 @@
               }
           </div>
       
-          <div class="bg-[rgb(var(--bg-subtle))]/40 backdrop-blur-lg border border-[rgb(var(--border-muted))]/50 p-6 rounded-2xl shadow-xl">
+          <div class="bg-[rgb(var(--bg-subtle))/80] border border-[rgb(var(--border-muted))]/50 p-6 rounded-2xl shadow-xl">
             <h3 class="font-bold text-xl mb-2 text-inherit">Support "Feel Better"</h3>
             <p class="text-[rgb(var(--text-muted))] mb-4">
               This app is free, ad-free, and always will be. If you find it helpful, please consider a small donation to support its maintenance and development.
@@ -713,7 +713,7 @@
 
   <!-- BOTTOM NAVIGATION -->
   @if (currentView() !== 'breathing' && currentView() !== 'thoughtChallenger') {
-    <nav class="fixed bottom-0 left-0 right-0 bg-[rgb(var(--bg-subtle))]/60 backdrop-blur-lg border-t border-[rgb(var(--border-default))] grid grid-cols-5">
+    <nav class="fixed bottom-0 left-0 right-0 bg-[rgb(var(--bg-subtle))]/95 border-t border-[rgb(var(--border-default))] grid grid-cols-5">
       <button (click)="setView('home')" class="flex flex-col items-center justify-center p-3 w-full" [class]="currentView() === 'home' ? 'text-[rgb(var(--text-accent))]' : 'text-[rgb(var(--text-muted))] hover:bg-[rgb(var(--bg-subtle))]'">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
         <span class="text-xs font-medium">Home</span>
