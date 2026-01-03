@@ -304,7 +304,6 @@ export class StrategyService {
             }));
             toolId = details.toolId;
         } else {
-            // Fallback for any strategy not in the map, though all defaults should now be covered.
             console.warn(`Strategy not found in map: "${text}". Using default steps.`);
             steps = [{ id: crypto.randomUUID(), text: 'Break this down into a small, actionable step.' }];
         }
@@ -362,15 +361,28 @@ export class StrategyService {
 
     private updateStrategyList(emotion: string, scenario: string, category: string, updateFn: (list: Strategy[]) => Strategy[]) {
         this.strategies.update(allStrategies => {
-            const newStrategies = JSON.parse(JSON.stringify(allStrategies));
-            const emotionStrategies = newStrategies[emotion];
-            
-            if (emotionStrategies && emotionStrategies[scenario] && emotionStrategies[scenario][category]) {
-                const currentList = emotionStrategies[scenario][category];
-                emotionStrategies[scenario][category] = updateFn(currentList);
-            }
-            
-            return newStrategies;
+            const emotionToUpdate = allStrategies[emotion];
+            if (!emotionToUpdate) return allStrategies;
+    
+            const scenarioToUpdate = emotionToUpdate[scenario as keyof typeof emotionToUpdate];
+            if (!scenarioToUpdate) return allStrategies;
+    
+            const categoryToUpdate = scenarioToUpdate[category as keyof typeof scenarioToUpdate];
+            if (!categoryToUpdate) return allStrategies;
+    
+            const newList = updateFn(categoryToUpdate);
+    
+            // Avoid mutation by creating new objects only on the path to the change
+            return {
+                ...allStrategies,
+                [emotion]: {
+                    ...emotionToUpdate,
+                    [scenario]: {
+                        ...scenarioToUpdate,
+                        [category]: newList
+                    }
+                }
+            };
         });
     }
 

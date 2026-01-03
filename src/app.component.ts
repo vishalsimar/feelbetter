@@ -109,6 +109,16 @@ export class AppComponent {
     const emotionMap = new Map<string, string>();
     this.emotions().forEach(e => emotionMap.set(e.name, e.color));
 
+    // Optimization: Group entries by date string once to avoid repeated filtering and date parsing.
+    const entriesByDate = new Map<string, JournalEntry[]>();
+    for (const entry of entries) {
+        const dateString = new Date(entry.date).toDateString();
+        if (!entriesByDate.has(dateString)) {
+            entriesByDate.set(dateString, []);
+        }
+        entriesByDate.get(dateString)!.push(entry);
+    }
+
     const today = new Date();
     const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
     const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -124,7 +134,7 @@ export class AppComponent {
     for (let i = 1; i <= daysInMonth; i++) {
         const date = new Date(today.getFullYear(), today.getMonth(), i);
         const dateString = date.toDateString();
-        const entriesForDay = entries.filter(e => new Date(e.date).toDateString() === dateString);
+        const entriesForDay = entriesByDate.get(dateString) || [];
         const colorsForDay = entriesForDay.map(e => emotionMap.get(e.emotion) || 'bg-gray-200');
         calendarDays.push({ date: i, colors: colorsForDay.reverse() });
     }
@@ -173,9 +183,6 @@ export class AppComponent {
       return 0;
     }
 
-    // Get unique timestamps at the start of each day, in descending order
-    // FIX: Explicitly type the Set as Set<number> to ensure TypeScript infers uniqueTimestamps
-    // as a number array. This resolves errors with arithmetic operations on 'any' type.
     const uniqueTimestamps = Array.from(
       new Set<number>(entries.map(e => new Date(e.date).setHours(0, 0, 0, 0)))
     ).sort((a, b) => b - a);
@@ -187,19 +194,17 @@ export class AppComponent {
     const today = new Date().setHours(0, 0, 0, 0);
     const yesterday = today - 86400000; // Milliseconds in a day
 
-    // Find where the streak should start from (today or yesterday)
     let startIndex = uniqueTimestamps.findIndex(ts => ts === today);
     if (startIndex === -1) {
       startIndex = uniqueTimestamps.findIndex(ts => ts === yesterday);
       if (startIndex === -1) {
-        return 0; // No entry for today or yesterday, so streak is 0.
+        return 0;
       }
     }
 
     let streak = 1;
     let currentTs = uniqueTimestamps[startIndex];
 
-    // Iterate from the starting point to check for consecutive days
     for (let i = startIndex + 1; i < uniqueTimestamps.length; i++) {
       const nextTs = uniqueTimestamps[i];
       const expectedTs = currentTs - 86400000;
@@ -208,7 +213,7 @@ export class AppComponent {
         streak++;
         currentTs = nextTs;
       } else {
-        break; // Streak is broken
+        break;
       }
     }
 
@@ -219,8 +224,9 @@ export class AppComponent {
     const entries = this.journalEntries();
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysAgoTs = thirtyDaysAgo.getTime(); // Get timestamp once for efficient comparison
     
-    const recentEntries = entries.filter(e => new Date(e.date) > thirtyDaysAgo);
+    const recentEntries = entries.filter(e => new Date(e.date).getTime() > thirtyDaysAgoTs);
     const counts = new Map<string, number>();
     
     recentEntries.forEach(e => {
@@ -286,7 +292,6 @@ export class AppComponent {
       const theme = this.activeTheme();
       const html = document.documentElement;
 
-      // Set color mode class
       if (mode === 'dark') {
         html.classList.add('dark');
       } else {
@@ -294,12 +299,10 @@ export class AppComponent {
       }
       localStorage.setItem(this.colorModeKey, mode);
 
-      // Set theme class
       html.className = html.className.replace(/theme-\S+/g, '').trim();
       html.classList.add(`theme-${theme}`);
       localStorage.setItem(this.activeThemeKey, theme);
       
-      // Redraw chart on theme or mode change
       if (this.currentView() === 'growth' && this.chartContainer()) {
           this.drawDonutChart();
       }
@@ -388,7 +391,7 @@ export class AppComponent {
   
   getEmotionTailwindColor(emotionName: string): string {
     const colorName = this.emotionService.getCurrentColorNameForEmotion(emotionName);
-    return this.tailwindColorHexMap[colorName] || '#9ca3af'; // fallback to gray
+    return this.tailwindColorHexMap[colorName] || '#9ca3af';
   }
 
   getEmotionBgTint(emotionName: string): string {
@@ -408,7 +411,6 @@ export class AppComponent {
     this.activeTheme.set(themeId);
   }
 
-  // --- Emotion Color Customization ---
   getCurrentEmotionColor(emotionName: string): string {
     return this.emotionService.getCurrentColorNameForEmotion(emotionName);
   }
@@ -477,7 +479,6 @@ export class AppComponent {
     this.resetFinder();
   }
 
-  // --- Strategies ---
   startEditingTitle(strategy: Strategy): void {
     this.editingTarget.set({ strategyId: strategy.id, text: strategy.title });
   }
@@ -552,7 +553,6 @@ export class AppComponent {
       if (newSet.has(strategyId)) {
         newSet.delete(strategyId);
       } else {
-        // FIX: Corrected typo from `id` to `strategyId`.
         newSet.add(strategyId);
       }
       return newSet;
@@ -563,7 +563,6 @@ export class AppComponent {
     this.completedStepIds.set(new Set());
   }
 
-  // --- Drag and Drop ---
   onDragStart(strategy: Strategy, fromScenario: ScenarioKey, fromCategory: CategoryKey, fromIndex: number): void {
     this.draggedStrategy = { strategy, from: { scenario: fromScenario, category: fromCategory, index: fromIndex } };
   }
@@ -601,7 +600,6 @@ export class AppComponent {
     this.draggedStrategy = null;
   }
   
-  // --- Breathing ---
   private saveStat(key: string, value: number) {
     localStorage.setItem(`feel-better-stat-${key}`, String(value));
   }
@@ -668,7 +666,6 @@ export class AppComponent {
     nextPhase();
   }
 
-  // --- Audio Cues ---
   private initAudio(): void {
     if (!this.audioContext) {
       this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -702,7 +699,6 @@ export class AppComponent {
     oscillator.stop(this.audioContext.currentTime + duration);
   }
 
-  // --- Mini-Tools ---
   startTool(toolId: 'grounding'): void {
     if (toolId === 'grounding') {
         this.activeTool.set('grounding');
@@ -728,7 +724,6 @@ export class AppComponent {
     }, message.duration * 1000);
   }
 
-  // --- Thought Challenger Methods ---
   startThoughtChallenger(): void {
     this.thoughtChallengerStep.set(0);
     this.thoughtChallengerData.set({
@@ -817,8 +812,8 @@ ${data.evidenceAgainst.split('\n').map(l => l.trim() ? `- ${l}` : '').filter(Boo
         .attr('transform', `translate(${width / 2}, ${height / 2})`);
 
     const color = d3.scaleOrdinal()
-        .domain(data.map(d => d.name))
-        .range(data.map(d => this.getEmotionTailwindColor(d.name)));
+        .domain(data.map((d: any) => d.name))
+        .range(data.map((d: any) => this.getEmotionTailwindColor(d.name)));
 
     const pie = d3.pie().value((d: any) => d.count).sort(null);
     const data_ready = pie(data);
@@ -835,13 +830,17 @@ ${data.evidenceAgainst.split('\n').map(l => l.trim() ? `- ${l}` : '').filter(Boo
         .data(data_ready)
         .enter()
         .append('path')
-        .attr('d', arc)
         .attr('fill', (d: any) => color(d.data.name))
         .attr('stroke', strokeColor)
         .style('stroke-width', '2px')
-        .style('opacity', 0.8);
+        .style('opacity', 0.8)
+        .transition()
+        .duration(750)
+        .attrTween('d', function(d: any) {
+            const i = d3.interpolate({ startAngle: d.startAngle, endAngle: d.startAngle }, d);
+            return function(t: any) { return arc(i(t)); };
+        });
     
-    // Center text
     svg.append('text')
         .attr('text-anchor', 'middle')
         .attr('dy', '0.35em')
